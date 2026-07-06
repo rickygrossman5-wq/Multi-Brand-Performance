@@ -179,7 +179,6 @@ body{font-family:var(--sans);background:var(--black);color:var(--white);min-heig
 <div class="header">
   <div>
     <div class="app-title">PLTFRM / Multi-Brand Monthly Analyzer</div>
-    <div class="app-sub">Drop in your Amazon advertising exports — get spend breakdowns, wasted term analysis, negation candidates, impression share flags, and monthly callouts across every brand at once</div>
   </div>
   <div style="display:flex;gap:8px">
     <button class="btn-secondary" id="reset-btn" style="display:none" onclick="resetApp()">Reset</button>
@@ -919,15 +918,77 @@ function renderBrandNav(brands){
   var nav=document.getElementById('brand-nav');
   nav.innerHTML=brands.map(function(b){
     return'<button class="brand-tab" id="btab-'+CSS.escape(b)+'" onclick="selectBrand(\''+b.replace(/'/g,"\\'")+'\')">'+(BRAND_SHORT[b]||b)+'</button>';
-  }).join('');
+  }).join('')+
+  '<button class="brand-tab" id="btab-__all__" onclick="selectAllCallouts()" style="margin-left:auto;border-color:rgba(62,207,116,.3);color:var(--green)">All Callouts ↓</button>';
 }
 
 var BRAND_SHORT={'Achim Imports':'Achim','Black Wolf Nation':'Black Wolf','Feel Goods Co':'Feel Goods',
   'HoldOn Bags':'HoldOn','Immuno 150 Health':'Immuno 150','Pro Supps':'Pro Supps',
   'Puori Inc':'Puori','Reel Products, Inc.':'Reel','Sand Cloud':'Sand Cloud','The Humane Company':'Humane'};
 
+function selectAllCallouts(){
+  ACTIVE_BRAND='__all__';
+  document.querySelectorAll('.brand-tab').forEach(function(t){t.classList.remove('on');});
+  var tab=document.getElementById('btab-__all__');
+  if(tab)tab.classList.add('on');
+  var el=document.getElementById('brand-content');
+  el.innerHTML=renderAllCallouts();
+}
+
+function renderAllCallouts(){
+  var brands=Object.keys(BRAND_DATA).sort();
+  // Generate callout text for each brand that has a month set
+  var parts=[];
+  brands.forEach(function(b){
+    if(!CALLOUT_STATE[b])return;
+    var cs=CALLOUT_STATE[b];
+    if(cs.month===-1&&!cs.output)return; // skip brands with no callout data at all
+    var m=BRAND_DATA[b];
+    var text=cs.output;
+    if(!text||!text.trim())return;
+    var brandLabel=(BRAND_SHORT[b]||b).toUpperCase();
+    parts.push('═'.repeat(60)+'\n'+brandLabel+'\n'+'═'.repeat(60)+'\n\n'+text.trim());
+  });
+
+  var allText=parts.join('\n\n\n');
+  var hasContent=parts.length>0;
+
+  return'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">'+
+    '<div>'+
+      '<div class="results-title">All Brand Callouts</div>'+
+      '<div class="results-sub">'+(hasContent?parts.length+' brand'+(parts.length!==1?'s':'')+' with callout data':'No callouts generated yet — fill in Monthly Callout for each brand first')+'</div>'+
+    '</div>'+
+    (hasContent?'<div style="display:flex;gap:8px">'+
+      '<button class="btn-secondary" id="all-callouts-copy-btn" onclick="copyAllCallouts()">Copy all</button>'+
+      '<button class="btn-primary" onclick="downloadAllCallouts()">Download .txt</button>'+
+    '</div>':'') +
+  '</div>'+
+  (hasContent?
+    '<div style="background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:20px 24px;font-family:var(--mono);font-size:11px;color:var(--gray);line-height:1.7;white-space:pre-wrap;max-height:70vh;overflow-y:auto" id="all-callouts-text">'+esc(allText)+'</div>'
+    :'<div class="hint-box">Open each brand\'s Monthly Callout tab, fill in the details, and generate a callout. They\'ll all appear here.</div>')+
+  '<div id="all-callouts-data" style="display:none">'+esc(allText)+'</div>';
+}
+
+function copyAllCallouts(){
+  var el=document.getElementById('all-callouts-data');
+  if(!el)return;
+  copyWithAnim('all-callouts-copy-btn', el.textContent);
+}
+
+function downloadAllCallouts(){
+  var el=document.getElementById('all-callouts-data');
+  if(!el)return;
+  var text=el.textContent;
+  var mn=new Date().toISOString().slice(0,7);
+  var blob=new Blob([text],{type:'text/plain'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='PLTFRM_Monthly_Callouts_'+mn+'.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
 function selectBrand(brand){
-  ACTIVE_BRAND=brand;
   document.querySelectorAll('.brand-tab').forEach(function(t){t.classList.remove('on');});
   var tab=document.getElementById('btab-'+CSS.escape(brand));
   if(tab)tab.classList.add('on');
@@ -1557,8 +1618,8 @@ function renderCallout(brand,m){
     fi('dsp','DSP Spend (if any)',cs.dsp,'Leave blank if none')+
     '<div><label class="cf-label">Core Strategies for the Month</label>'+bl('core',cs.coreItems)+'</div>'+
     '<div class="sqp-inline-grid">'+
-      dzSm('sqp-prev-'+CSS.escape(brand),'sqp-prev','SQP — Previous Month (optional)')+
-      dzSm('sqp-curr-'+CSS.escape(brand),'sqp-curr','SQP — Current Month (optional)')+
+      dzSm('sqp-prev-'+CSS.escape(brand),'sqp-prev','SQP — Previous Month (optional)',brand)+
+      dzSm('sqp-curr-'+CSS.escape(brand),'sqp-curr','SQP — Current Month (optional)',brand)+
     '</div>'+
     '<div><label class="cf-label">Strategic Action Items for Next Month</label>'+bl('action',cs.actionItems)+'</div>'+
     '<div style="display:flex;gap:10px;align-items:center;margin-top:4px">'+
@@ -1569,12 +1630,12 @@ function renderCallout(brand,m){
   '</div>'+output;
 }
 
-function dzSm(dzId,fileKey,lbl){
-  var csb=CALLOUT_STATE[ACTIVE_BRAND]||{};
+function dzSm(dzId,fileKey,lbl,brand){
+  var csb=CALLOUT_STATE[brand]||{};
   var fKey=fileKey==='sqp-prev'?'sqpPrevLocal':'sqpCurrLocal';
   var hasFile=!!(csb[fKey]);
   return'<div class="dz-sm'+(hasFile?' ok':'')+'" id="dzsm-'+dzId+'">'+
-    '<input type="file" accept=".csv,.tsv,.txt" onchange="handleSQPLocal(event,\''+fileKey+'\',\''+dzId+'\')">'+
+    '<input type="file" accept=".csv,.tsv,.txt" onchange="handleSQPLocal(event,\''+fileKey+'\',\''+dzId+'\',\''+brand.replace(/'/g,"\\'")+'\')">'+
     '<div><div class="dz-sm-label">'+esc(lbl)+'</div><div class="dz-sm-hint" id="dzsm-hint-'+dzId+'">'+(hasFile?esc(csb[fKey+'Name']||'Loaded'):'CSV · click to upload')+'</div></div>'+
   '</div>';
 }
@@ -1615,9 +1676,11 @@ function enrichAutoSubType(autoRows, brand){
   });
 }
 
-function handleSQPLocal(e,fileKey,dzId){
+function handleSQPLocal(e,fileKey,dzId,brand){
   var file=e.target.files[0];if(!file)return;
-  var brand=ACTIVE_BRAND;var cs=CALLOUT_STATE[brand];
+  brand=brand||ACTIVE_BRAND;
+  if(!CALLOUT_STATE[brand])return;
+  var cs=CALLOUT_STATE[brand];
   var fKey=fileKey==='sqp-prev'?'sqpPrevLocal':'sqpCurrLocal';
   cs[fKey+'Name']=file.name;
   parseSQP(file).then(function(data){
