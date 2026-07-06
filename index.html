@@ -179,7 +179,7 @@ body{font-family:var(--sans);background:var(--black);color:var(--white);min-heig
 <div class="header">
   <div>
     <div class="app-title">PLTFRM / Multi-Brand Monthly Analyzer</div>
-    <div class="app-sub">Upload reports once — analyze all brands simultaneously</div>
+    <div class="app-sub">Drop in your Amazon advertising exports — get spend breakdowns, wasted term analysis, negation candidates, impression share flags, and monthly callouts across every brand at once</div>
   </div>
   <div style="display:flex;gap:8px">
     <button class="btn-secondary" id="reset-btn" style="display:none" onclick="resetApp()">Reset</button>
@@ -235,6 +235,63 @@ body{font-family:var(--sans);background:var(--black);color:var(--white);min-heig
     <button class="btn-primary" onclick="processFiles()" id="parse-btn" disabled>Analyze All Brands</button>
     <div id="parse-status"></div>
   </div>
+
+  <div style="margin-top:16px">
+    <div class="upload-section-label" style="margin-bottom:8px">Optional — Additional Reports</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      <div class="dz dz-optional" id="dz-product" ondragover="dzDrag(event,'dz-product')" ondragleave="dzLeave('dz-product')" ondrop="dzDrop(event,'dz-product','product')">
+        <input type="file" accept=".csv,.xlsx,.xls" onchange="handleUpload(event,'product')">
+        <div class="dz-icon" id="icon-product"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+        <div class="dz-body"><div class="dz-label">Advertised Product</div><div class="dz-hint" id="hint-product">PPC · all brands</div></div>
+      </div>
+      <div class="dz dz-optional" id="dz-placement" ondragover="dzDrag(event,'dz-placement')" ondragleave="dzLeave('dz-placement')" ondrop="dzDrop(event,'dz-placement','placement')">
+        <input type="file" accept=".csv,.xlsx,.xls" onchange="handleUpload(event,'placement')">
+        <div class="dz-icon" id="icon-placement"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div class="dz-body"><div class="dz-label">Placement</div><div class="dz-hint" id="hint-placement">PPC · all brands</div></div>
+      </div>
+      <div class="dz dz-optional" id="dz-reach" ondragover="dzDrag(event,'dz-reach')" ondragleave="dzLeave('dz-reach')" ondrop="dzDrop(event,'dz-reach','reach')">
+        <input type="file" accept=".csv,.xlsx,.xls" onchange="handleUpload(event,'reach')">
+        <div class="dz-icon" id="icon-reach"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="dz-body"><div class="dz-label">Reach &amp; Frequency</div><div class="dz-hint" id="hint-reach">DSP · all brands</div></div>
+      </div>
+      <div class="dz dz-optional" id="dz-inventory" ondragover="dzDrag(event,'dz-inventory')" ondragleave="dzLeave('dz-inventory')" ondrop="dzDrop(event,'dz-inventory','inventory')">
+        <input type="file" accept=".csv,.xlsx,.xls" onchange="handleUpload(event,'inventory')">
+        <div class="dz-icon" id="icon-inventory"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <div class="dz-body"><div class="dz-label">DSP Inventory</div><div class="dz-hint" id="hint-inventory">DSP · all brands</div></div>
+      </div>
+      <div class="dz dz-optional" id="dz-geo" ondragover="dzDrag(event,'dz-geo')" ondragleave="dzLeave('dz-geo')" ondrop="dzDrop(event,'dz-geo','geo')">
+        <input type="file" accept=".csv,.xlsx,.xls" onchange="handleUpload(event,'geo')">
+        <div class="dz-icon" id="icon-geo"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+        <div class="dz-body"><div class="dz-label">DSP Geography</div><div class="dz-hint" id="hint-geo">DSP · all brands</div></div>
+      </div>
+      <div class="dz dz-optional" id="dz-audience" ondragover="dzDrag(event,'dz-audience')" ondragleave="dzLeave('dz-audience')" ondrop="dzDrop(event,'dz-audience','audience')">
+        <input type="file" accept=".csv,.xlsx,.xls" onchange="handleUpload(event,'audience')">
+        <div class="dz-icon" id="icon-audience"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></div>
+        <div class="dz-body"><div class="dz-label">DSP Audience</div><div class="dz-hint" id="hint-audience">DSP · all brands</div></div>
+      </div>
+      <div class="dz dz-optional" id="dz-converted" ondragover="dzDrag(event,'dz-converted')" ondragleave="dzLeave('dz-converted')" ondrop="dzDrop(event,'dz-converted','converted')">
+        <input type="file" accept=".csv,.xlsx,.xls" onchange="handleUpload(event,'converted')">
+        <div class="dz-icon" id="icon-converted"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="dz-body"><div class="dz-label">Converted Product</div><div class="dz-hint" id="hint-converted">PPC · all brands</div></div>
+      </div>
+      <div class="dz dz-optional" id="dz-targeting" ondragover="dzDrag(event,'dz-targeting')" ondragleave="dzLeave('dz-targeting')" ondrop="dzDrop(event,'dz-targeting','targeting')">
+        <input type="file" accept=".csv,.xlsx,.xls" onchange="handleUpload(event,'targeting')">
+        <div class="dz-icon" id="icon-targeting"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+        <div class="dz-body"><div class="dz-label">Targeting</div><div class="dz-hint" id="hint-targeting">PPC · all brands</div></div>
+      </div>
+      <div class="dz dz-optional" id="dz-stris" ondragover="dzDrag(event,'dz-stris')" ondragleave="dzLeave('dz-stris')" ondrop="dzDrop(event,'dz-stris','stris')">
+        <input type="file" accept=".csv,.xlsx,.xls" onchange="handleUpload(event,'stris')">
+        <div class="dz-icon" id="icon-stris"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+        <div class="dz-body"><div class="dz-label">Search Term Imp. Share</div><div class="dz-hint" id="hint-stris">SP/SB · all brands</div></div>
+      </div>
+      <div class="dz dz-optional" id="dz-tosis" ondragover="dzDrag(event,'dz-tosis')" ondragleave="dzLeave('dz-tosis')" ondrop="dzDrop(event,'dz-tosis','tosis')">
+        <input type="file" accept=".csv,.xlsx,.xls" onchange="handleUpload(event,'tosis')">
+        <div class="dz-icon" id="icon-tosis"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+        <div class="dz-body"><div class="dz-label">Top-of-Search Imp. Share</div><div class="dz-hint" id="hint-tosis">SP/SB · all brands</div></div>
+      </div>
+    </div>
+  </div>
+
   <div id="parsed-status"></div>
 </div>
 
@@ -307,15 +364,24 @@ function applyConfig(){
 }
 
 // ── State ──
-var FILES={str:null,camp:null};
-var PARSED={str:null,camp:null};
+var FILES={str:null,camp:null,product:null,placement:null,reach:null,inventory:null,geo:null,audience:null,converted:null,targeting:null,stris:null,tosis:null};
+var PARSED={str:null,camp:null,product:null,placement:null,reach:null,inventory:null,geo:null,audience:null,converted:null,targeting:null,stris:null,tosis:null};
 var STR_BY_BRAND={};
 var CAMP_BY_BRAND={};
-var SP_STR_BY_BRAND={};  // per-brand SP STR uploads keyed by brand name
+var PRODUCT_BY_BRAND={};
+var PLACEMENT_BY_BRAND={};
+var REACH_BY_BRAND={};
+var INVENTORY_BY_BRAND={};
+var GEO_BY_BRAND={};
+var AUDIENCE_BY_BRAND={};
+var CONVERTED_BY_BRAND={};
+var TARGETING_BY_BRAND={};
+var STRIS_BY_BRAND={};
+var TOSIS_BY_BRAND={};
+var SP_STR_BY_BRAND={};
 var BRAND_DATA={};
 var ACTIVE_BRAND=null;
 var ACTIVE_SEC={};
-// Per-brand callout form state
 var CALLOUT_STATE={};
 
 // ── Helpers ──
@@ -349,15 +415,13 @@ function dzDrop(e,id,key){e.preventDefault();dzLeave(id);var f=e.dataTransfer.fi
 
 function setFile(key,file){
   FILES[key]=file;
-  var iconMap={str:'icon-str',camp:'icon-camp'};
-  var dzMap={str:'dz-str',camp:'dz-camp'};
-  var hintMap={str:'hint-str',camp:'hint-camp'};
-  var dzel=document.getElementById(dzMap[key]);
-  if(dzel)dzel.classList.add('ok');
-  var h=document.getElementById(hintMap[key]);
-  if(h)h.textContent=file.name;
+  var dzMap={str:'dz-str',camp:'dz-camp',product:'dz-product',placement:'dz-placement',reach:'dz-reach',inventory:'dz-inventory',geo:'dz-geo',audience:'dz-audience',converted:'dz-converted',targeting:'dz-targeting',stris:'dz-stris',tosis:'dz-tosis'};
+  var iconMap={str:'icon-str',camp:'icon-camp',product:'icon-product',placement:'icon-placement',reach:'icon-reach',inventory:'icon-inventory',geo:'icon-geo',audience:'icon-audience',converted:'icon-converted',targeting:'icon-targeting',stris:'icon-stris',tosis:'icon-tosis'};
+  var hintMap={str:'hint-str',camp:'hint-camp',product:'hint-product',placement:'hint-placement',reach:'hint-reach',inventory:'hint-inventory',geo:'hint-geo',audience:'hint-audience',converted:'hint-converted',targeting:'hint-targeting',stris:'hint-stris',tosis:'hint-tosis'};
+  var dzel=document.getElementById(dzMap[key]);if(dzel)dzel.classList.add('ok');
+  var h=document.getElementById(hintMap[key]);if(h)h.textContent=file.name;
   var ic=document.getElementById(iconMap[key]);
-  if(ic)ic.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  if(ic)ic.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
   var parseBtn=document.getElementById('parse-btn');
   if(parseBtn)parseBtn.disabled=!(FILES.str&&FILES.camp);
 }
@@ -388,22 +452,50 @@ function parseSQP(file){
     var fr=new FileReader();
     fr.onload=function(e){
       try{
-        var lines=e.target.result.split('\n');
-        var wb=XLSX.read(lines.slice(1).join('\n'),{type:'string'});
-        var ws=wb.Sheets[wb.SheetNames[0]];
-        var rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+        var raw=e.target.result;
+        // Strip BOM
+        if(raw.charCodeAt(0)===0xFEFF)raw=raw.slice(1);
+        var lines=raw.split(/\r?\n/);
+        // Find the real header row — Amazon SQP has 1-2 metadata rows before the column headers
+        var headerIdx=-1;
+        for(var i=0;i<Math.min(lines.length,5);i++){
+          if(lines[i].toLowerCase().includes('search query')){headerIdx=i;break;}
+        }
+        if(headerIdx===-1){rej(new Error('Could not find Search Query column in SQP file'));return;}
+        // Parse headers
+        var sep=lines[headerIdx].includes('\t')?'\t':',';
+        function splitRow(line){
+          // Handle quoted CSV fields
+          var result=[],cur='',inQ=false;
+          for(var i=0;i<line.length;i++){
+            var c=line[i];
+            if(c==='"'){inQ=!inQ;}
+            else if(c===sep&&!inQ){result.push(cur.trim());cur='';}
+            else{cur+=c;}
+          }
+          result.push(cur.trim());
+          return result;
+        }
+        var headers=splitRow(lines[headerIdx]).map(function(h){return h.replace(/^"|"$/g,'').trim();});
+        var qIdx=headers.findIndex(function(h){return h.toLowerCase().includes('search query');});
+        var impIdx=headers.findIndex(function(h){return h.toLowerCase().includes('impressions') && h.toLowerCase().includes('brand share');});
+        var purIdx=headers.findIndex(function(h){return h.toLowerCase().includes('purchases') && h.toLowerCase().includes('brand share');});
+        if(qIdx===-1){rej(new Error('Search Query column not found'));return;}
         var map={};
-        rows.forEach(function(r){
-          var q=String(r['Search Query']||'').toLowerCase().trim();
-          if(!q)return;
-          var imp=parseFloat(String(r['Impressions: Brand Share %']||'').replace(/[^0-9.]/g,''));
-          var pur=parseFloat(String(r['Purchases: Brand Share %']||'').replace(/[^0-9.]/g,''));
+        for(var i=headerIdx+1;i<lines.length;i++){
+          var line=lines[i].trim();if(!line)continue;
+          var cols=splitRow(line);
+          var q=cols[qIdx]?cols[qIdx].replace(/^"|"$/g,'').trim().toLowerCase():'';
+          if(!q)continue;
+          var imp=impIdx>=0?parseFloat(String(cols[impIdx]||'').replace(/[^0-9.]/g,'')):NaN;
+          var pur=purIdx>=0?parseFloat(String(cols[purIdx]||'').replace(/[^0-9.]/g,'')):NaN;
           map[q]={imp:isNaN(imp)?null:imp,pur:isNaN(pur)?null:pur};
-        });
+        }
         res(map);
       }catch(err){rej(err);}
     };
-    fr.onerror=rej;fr.readAsText(file);
+    fr.onerror=rej;
+    fr.readAsText(file);
   });
 }
 
@@ -423,68 +515,84 @@ async function processFiles(){
     '<span style="font-family:var(--mono);font-size:11px;color:var(--gray)">Reading files...</span>';
 
   try{
+    // Parse required files
     var promises=[parseCSVorXLSX(FILES.str),parseCSVorXLSX(FILES.camp)];
+    // Parse optional files if provided
+    var optKeys=['product','placement','reach','inventory','geo','audience','converted','targeting','stris','tosis'];
+    optKeys.forEach(function(k){promises.push(FILES[k]?parseCSVorXLSX(FILES[k]):Promise.resolve(null));});
     var results=await Promise.all(promises);
 
     PARSED.str=results[0];PARSED.camp=results[1];
+    optKeys.forEach(function(k,i){PARSED[k]=results[2+i];});
 
     // Yield to browser before heavy computation starts
     await new Promise(function(r){setTimeout(r,0);});
     btn.textContent='Computing...';
 
-    // Detect brand column — check raw (unfiltered) rows first
+    // Detect brand column
     var campSample=PARSED.camp[0]||{};
     var strSample=PARSED.str[0]||{};
     var brandCol=getCol(campSample,['advertiser account name','account name','brand name'])
       ||getCol(strSample,['advertiser account name','account name','brand name']);
-
-    if(!brandCol){showErr('Cannot detect brand column. Expected "Advertiser account name".');btn.disabled=false;btn.textContent='Analyze All Brands';return;}
+    if(!brandCol){showErr('Cannot detect brand column.');btn.disabled=false;btn.textContent='Analyze All Brands';return;}
 
     // Build brand list from campaign report non-DSP rows only
     var ppcCampRows=PARSED.camp.filter(function(r){
       var adProd=String(r['Ad product']||r['Ad Product']||'').toLowerCase();
       return !adProd.includes('dsp');
     });
-
-    var brands=[...new Set(
-      ppcCampRows.map(function(r){return String(r[brandCol]||'').trim();})
-    )].filter(Boolean).sort();
-
-    // Fallback: if campaign report yields no brands (e.g. all DSP), use STR brands
+    var brands=[...new Set(ppcCampRows.map(function(r){return String(r[brandCol]||'').trim();}))].filter(Boolean).sort();
     if(brands.length===0){
-      brands=[...new Set(
-        PARSED.str.map(function(r){return String(r[brandCol]||'').trim();})
-      )].filter(Boolean).sort();
+      brands=[...new Set(PARSED.str.map(function(r){return String(r[brandCol]||'').trim();}))].filter(Boolean).sort();
     }
+    if(brands.length===0){showErr('No brands detected.');btn.disabled=false;btn.textContent='Analyze All Brands';return;}
 
-    if(brands.length===0){showErr('No brands detected. Check that your files contain an "Advertiser account name" column.');btn.disabled=false;btn.textContent='Analyze All Brands';return;}
+    // Pre-index all reports by brand
+    function indexBy(rows,col){
+      var idx={};
+      if(!rows)return idx;
+      rows.forEach(function(r){var b=String(r[col]||'').trim();if(b){if(!idx[b])idx[b]=[];idx[b].push(r);}});
+      return idx;
+    }
+    STR_BY_BRAND=indexBy(PARSED.str,brandCol);
+    CAMP_BY_BRAND=indexBy(PARSED.camp,brandCol);
+    PRODUCT_BY_BRAND=indexBy(PARSED.product,brandCol);
+    PLACEMENT_BY_BRAND=indexBy(PARSED.placement,brandCol);
+    REACH_BY_BRAND=indexBy(PARSED.reach,brandCol);
+    INVENTORY_BY_BRAND=indexBy(PARSED.inventory,brandCol);
+    GEO_BY_BRAND=indexBy(PARSED.geo,brandCol);
+    AUDIENCE_BY_BRAND=indexBy(PARSED.audience,brandCol);
+    CONVERTED_BY_BRAND=indexBy(PARSED.converted,brandCol);
+    TARGETING_BY_BRAND=indexBy(PARSED.targeting,brandCol);
+    STRIS_BY_BRAND=indexBy(PARSED.stris,brandCol);
+    TOSIS_BY_BRAND=indexBy(PARSED.tosis,brandCol);
 
-    // Pre-index rows by brand so computeBrand doesn't scan full arrays 10x
-    STR_BY_BRAND={};CAMP_BY_BRAND={};
-    PARSED.str.forEach(function(r){var b=String(r[brandCol]||'').trim();if(b){if(!STR_BY_BRAND[b])STR_BY_BRAND[b]=[];STR_BY_BRAND[b].push(r);}});
-    PARSED.camp.forEach(function(r){var b=String(r[brandCol]||'').trim();if(b){if(!CAMP_BY_BRAND[b])CAMP_BY_BRAND[b]=[];CAMP_BY_BRAND[b].push(r);}});
-
-    // Process one brand at a time via setTimeout to keep the page responsive
-    var totalRows=PARSED.str.length+PARSED.camp.length;
-    document.getElementById('parse-status').innerHTML=
-      '<span style="font-family:var(--mono);font-size:11px;color:var(--gray)">Processing brand 1 of '+brands.length+'...</span>';
+    // Count total rows across all loaded files
+    var allOptKeys=['product','placement','reach','inventory','geo','audience','converted','targeting','stris','tosis'];
+    var totalRows=PARSED.str.length+PARSED.camp.length+
+      allOptKeys.reduce(function(s,k){return s+(PARSED[k]?PARSED[k].length:0);},0);
 
     function processBrandsAsync(idx){
       if(idx>=brands.length){
-        if(brands.length===0){
-          showErr('No brands to process.');
-          btn.disabled=false;btn.textContent='Analyze All Brands';
-          return;
-        }
+        if(brands.length===0){showErr('No brands to process.');btn.disabled=false;btn.textContent='Analyze All Brands';return;}
         renderBrandNav(brands);
         document.getElementById('main-content').style.display='';
         document.getElementById('reset-btn').style.display='';
         document.getElementById('upload-zone').style.marginBottom='0';
         document.getElementById('parse-status').innerHTML='';
-        document.getElementById('parsed-status').innerHTML='<div class="parsed-info">'+
-          '<span class="parsed-chip">'+totalRows.toLocaleString()+' rows parsed</span>'+
+        var chips='<span class="parsed-chip">'+totalRows.toLocaleString()+' rows parsed</span>'+
           '<span class="parsed-chip">'+brands.length+' brands</span>'+
-          '</div>';
+          (PARSED.product?'<span class="parsed-chip">Products</span>':'')+
+          (PARSED.placement?'<span class="parsed-chip">Placements</span>':'')+
+          (PARSED.inventory?'<span class="parsed-chip">DSP Inventory</span>':'')+
+          (PARSED.geo?'<span class="parsed-chip">DSP Geo</span>':'')+
+          (PARSED.audience?'<span class="parsed-chip">DSP Audience</span>':'')+
+          (PARSED.reach?'<span class="parsed-chip">Reach &amp; Freq</span>':'')+
+          (PARSED.converted?'<span class="parsed-chip">Converted Product</span>':'')+
+          (PARSED.targeting?'<span class="parsed-chip">Targeting</span>':'')+
+          (PARSED.stris?'<span class="parsed-chip">STR Imp. Share</span>':'')+
+          (PARSED.tosis?'<span class="parsed-chip">TOS Imp. Share</span>':'');
+        document.getElementById('parsed-status').innerHTML='<div class="parsed-info">'+chips+'</div>';
         btn.disabled=false;btn.textContent='Analyze All Brands';
         selectBrand(brands[0]);
         return;
@@ -495,13 +603,8 @@ async function processFiles(){
         (idx+1)+' / '+brands.length+': '+esc(b)+'</span>'+
         '<div style="margin-top:6px;height:3px;background:var(--line);border-radius:2px;width:260px">'+
         '<div style="height:3px;background:var(--green);border-radius:2px;width:'+Math.round((idx/brands.length)*100)+'%;transition:width .2s"></div></div>';
-      // yield to browser, then compute
       setTimeout(function(){
-        try{
-          BRAND_DATA[b]=computeBrand(b,brandCol);
-        }catch(e){
-          console.warn('Error computing brand',b,e);
-        }
+        try{BRAND_DATA[b]=computeBrand(b,brandCol);}catch(e){console.warn('Error computing brand',b,e);}
         processBrandsAsync(idx+1);
       },0);
     }
@@ -863,6 +966,14 @@ function computeBrand(brand,brandCol){
   var totalSales=totalPPCSales+dspSales;
   var totalWasted=wastedTerms.reduce(function(s,r){return s+r.spend;},0);
 
+  // ── Supplemental report data ──
+  var productData=computeProductData(brand);
+  var placementData=computePlacementData(brand);
+  var dspData=computeDSPData(brand);
+  var convertedData=computeConvertedData(brand);
+  var targetingData=computeTargetingData(brand);
+  var isData=computeISData(brand);
+
   return{
     totalPPCSpend,totalPPCSales,dspSpend,dspSales,totalSpend,totalSales,
     bSpend,nbSpend,nbSales,autoSpend,manualSpend,avgNBROAS,
@@ -871,7 +982,304 @@ function computeBrand(brand,brandCol){
     topTerms,wastedTerms,tokensByType,totalWasted,
     wastedPct:totalPPCSpend>0?totalWasted/totalPPCSpend:0,
     campRows,strRows,
+    productData,placementData,dspData,convertedData,targetingData,isData,
   };
+}
+
+// ── Supplemental compute functions ──
+function computeProductData(brand){
+  var rows=PRODUCT_BY_BRAND[brand];
+  if(!rows||rows.length===0)return null;
+  var r0=rows[0]||{};
+  var cAsin=getCol(r0,['advertised product id']);
+  var cName=getCol(r0,['advertised product name']);
+  var cSpend=getCol(r0,['total cost']);
+  var cSales=getCol(r0,['sales']);
+  var cPurch=getCol(r0,['purchases']);
+  var cNTB=getCol(r0,['purchases (new to brand)']);
+  var cHalo=getCol(r0,['sales (halo)']);
+  var cDPV=getCol(r0,['detail page views']);
+  // Aggregate by ASIN
+  var map={};
+  rows.forEach(function(r){
+    var asin=String(r[cAsin]||'').trim();if(!asin)return;
+    if(!map[asin])map[asin]={asin,name:String(r[cName]||''),sp:0,sa:0,pu:0,ntb:0,halo:0,dpv:0};
+    map[asin].sp+=num(r[cSpend]);map[asin].sa+=num(r[cSales]);map[asin].pu+=num(r[cPurch]);
+    map[asin].ntb+=num(r[cNTB]);map[asin].halo+=num(r[cHalo]);map[asin].dpv+=num(r[cDPV]);
+  });
+  return Object.values(map).map(function(a){
+    return{...a,roas:a.sp>0?a.sa/a.sp:0,ntbRate:a.pu>0?a.ntb/a.pu:0,cpa:a.pu>0?a.sp/a.pu:0};
+  }).sort(function(a,b){return b.sp-a.sp;});
+}
+
+function computePlacementData(brand){
+  var rows=PLACEMENT_BY_BRAND[brand];
+  if(!rows||rows.length===0)return null;
+  var r0=rows[0]||{};
+  var cPlc=getCol(r0,['placement classification']);
+  var cSpend=getCol(r0,['total cost']);
+  var cSales=getCol(r0,['sales']);
+  var cPurch=getCol(r0,['purchases']);
+  var cClicks=getCol(r0,['clicks']);
+  var cImps=getCol(r0,['impressions']);
+  var map={};
+  rows.forEach(function(r){
+    var plc=String(r[cPlc]||'Unknown').trim()||'Unknown';
+    if(!map[plc])map[plc]={plc,sp:0,sa:0,pu:0,cl:0,im:0};
+    map[plc].sp+=num(r[cSpend]);map[plc].sa+=num(r[cSales]);map[plc].pu+=num(r[cPurch]);
+    map[plc].cl+=num(r[cClicks]);map[plc].im+=num(r[cImps]);
+  });
+  var ORDER=['Top of Search on-Amazon','Detail Page on-Amazon','Other on-Amazon','Off Amazon','Amazon O&O','Amazon Onsite','Offsite','Unallocated','Unknown'];
+  return Object.values(map).map(function(p){
+    return{...p,roas:p.sp>0?p.sa/p.sp:0,cvr:p.cl>0?p.pu/p.cl:0,ctr:p.im>0?p.cl/p.im:0};
+  }).sort(function(a,b){
+    var ai=ORDER.indexOf(a.plc),bi=ORDER.indexOf(b.plc);
+    if(ai===-1)ai=99;if(bi===-1)bi=99;
+    return ai-bi||b.sp-a.sp;
+  });
+}
+
+function computeDSPData(brand){
+  var inv=INVENTORY_BY_BRAND[brand];
+  var geo=GEO_BY_BRAND[brand];
+  var aud=AUDIENCE_BY_BRAND[brand];
+  var reach=REACH_BY_BRAND[brand];
+  if(!inv&&!geo&&!aud&&!reach)return null;
+
+  // Inventory — aggregate by site
+  var inventoryData=null;
+  if(inv&&inv.length>0){
+    var r0=inv[0]||{};
+    var cSite=getCol(r0,['site or app']);
+    var cSrc=getCol(r0,['supply source']);
+    var cSpend=getCol(r0,['total cost']);
+    var cSales=getCol(r0,['sales']);
+    var cPurch=getCol(r0,['purchases']);
+    var siteMap={};
+    inv.forEach(function(r){
+      var site=String(r[cSite]||'Unknown').trim()||'Unknown';
+      if(!siteMap[site])siteMap[site]={site,src:String(r[cSrc]||''),sp:0,sa:0,pu:0};
+      siteMap[site].sp+=num(r[cSpend]);siteMap[site].sa+=num(r[cSales]);siteMap[site].pu+=num(r[cPurch]);
+    });
+    inventoryData=Object.values(siteMap).map(function(s){
+      return{...s,roas:s.sp>0?s.sa/s.sp:0,wasted:s.pu===0};
+    }).sort(function(a,b){return b.sp-a.sp;}).slice(0,50);
+  }
+
+  // Geography — aggregate by region (US only + rest)
+  var geoData=null;
+  if(geo&&geo.length>0){
+    var r0=geo[0]||{};
+    var cCountry=getCol(r0,['country']);
+    var cRegion=getCol(r0,['region']);
+    var cSpend=getCol(r0,['total cost']);
+    var cSales=getCol(r0,['sales']);
+    var cPurch=getCol(r0,['purchases']);
+    var cImps=getCol(r0,['impressions']);
+    var regMap={};
+    geo.forEach(function(r){
+      var country=String(r[cCountry]||'').trim();
+      var region=String(r[cRegion]||'Unknown').trim()||'Unknown';
+      var key=country+'::'+region;
+      if(!regMap[key])regMap[key]={country,region,sp:0,sa:0,pu:0,im:0};
+      regMap[key].sp+=num(r[cSpend]);regMap[key].sa+=num(r[cSales]);regMap[key].pu+=num(r[cPurch]);regMap[key].im+=num(r[cImps]);
+    });
+    geoData=Object.values(regMap).map(function(g){
+      return{...g,roas:g.sp>0?g.sa/g.sp:0};
+    }).sort(function(a,b){return b.sp-a.sp;});
+  }
+
+  // Audience — aggregate by segment name
+  var audienceData=null;
+  if(aud&&aud.length>0){
+    var r0=aud[0]||{};
+    var cSeg=getCol(r0,['audience segment name']);
+    var cType=getCol(r0,['audience segment type']);
+    var cClass=getCol(r0,['audience segment class code']);
+    var cStatus=getCol(r0,['audience segment targeting status']);
+    var cSpend=getCol(r0,['total cost']);
+    var cPurch=getCol(r0,['purchases (promoted)']);
+    var audMap={};
+    aud.forEach(function(r){
+      var seg=String(r[cSeg]||'Unknown').trim();
+      if(!audMap[seg])audMap[seg]={seg,type:String(r[cClass]||r[cType]||''),status:String(r[cStatus]||''),sp:0,pu:0};
+      audMap[seg].sp+=num(r[cSpend]);audMap[seg].pu+=num(r[cPurch]);
+    });
+    audienceData=Object.values(audMap).map(function(a){
+      return{...a,cpa:a.pu>0?a.sp/a.pu:0};
+    }).sort(function(a,b){return b.sp-a.sp;}).slice(0,50);
+  }
+
+  // Reach & Frequency — DSP campaigns only (where User reach exists)
+  var reachData=null;
+  if(reach&&reach.length>0){
+    var cCamp=getCol(reach[0]||{},['campaign name','campaign']);
+    var cImps=getCol(reach[0]||{},['impressions']);
+    var cReach=getCol(reach[0]||{},['user reach']);
+    var cFreq=getCol(reach[0]||{},['average user impression frequency']);
+    var cF10=getCol(reach[0]||{},['user frequency (10+)']);
+    var freqCols=['user frequency (1)','user frequency (2)','user frequency (3)','user frequency (4)','user frequency (5)',
+      'user frequency (6)','user frequency (7)','user frequency (8)','user frequency (9)','user frequency (10+)'];
+    reachData=reach.filter(function(r){return num(r[cReach])>0;}).map(function(r){
+      var dist={};freqCols.forEach(function(fc,i){dist[i+1]=num(r[fc]);});
+      return{
+        camp:String(r[cCamp]||''),imps:num(r[cImps]),reach:num(r[cReach]),
+        avgFreq:parseFloat(r[cFreq])||0,freq10plus:num(r[cF10]),dist
+      };
+    }).sort(function(a,b){return b.avgFreq-a.avgFreq;});
+  }
+
+  return{inventoryData,geoData,audienceData,reachData};
+}
+
+function computeConvertedData(brand){
+  var rows=CONVERTED_BY_BRAND[brand];
+  if(!rows||rows.length===0)return null;
+  var r0=rows[0]||{};
+  var cAsin=getCol(r0,['converted product id']);
+  var cName=getCol(r0,['converted product name']);
+  var cCamp=getCol(r0,['campaign name']);
+  var cPurch=getCol(r0,['purchases']);
+  var cSales=getCol(r0,['sales']);
+  var cHaloPu=getCol(r0,['purchases (halo)']);
+  var cHaloSa=getCol(r0,['sales (halo)']);
+  var cNTB=getCol(r0,['purchases (new to brand)']);
+  // Aggregate by converted ASIN
+  var asinMap={};
+  rows.forEach(function(r){
+    var asin=String(r[cAsin]||'').trim();if(!asin)return;
+    if(!asinMap[asin])asinMap[asin]={asin,name:String(r[cName]||''),pu:0,sa:0,hPu:0,hSa:0,ntb:0};
+    asinMap[asin].pu+=num(r[cPurch]);asinMap[asin].sa+=num(r[cSales]);
+    asinMap[asin].hPu+=num(r[cHaloPu]);asinMap[asin].hSa+=num(r[cHaloSa]);
+    asinMap[asin].ntb+=num(r[cNTB]);
+  });
+  // Campaign-level halo analysis
+  var campMap={};
+  rows.forEach(function(r){
+    var camp=String(r[cCamp]||'').trim();if(!camp)return;
+    if(!campMap[camp])campMap[camp]={camp,pu:0,sa:0,hPu:0,hSa:0};
+    campMap[camp].pu+=num(r[cPurch]);campMap[camp].sa+=num(r[cSales]);
+    campMap[camp].hPu+=num(r[cHaloPu]);campMap[camp].hSa+=num(r[cHaloSa]);
+  });
+  var byAsin=Object.values(asinMap).map(function(a){
+    return{...a,haloPct:a.pu+a.hPu>0?a.hPu/(a.pu+a.hPu):0};
+  }).sort(function(a,b){return b.pu-a.pu;});
+  var byCamp=Object.values(campMap).map(function(c){
+    return{...c,haloPct:c.pu+c.hPu>0?c.hPu/(c.pu+c.hPu):0,haloRatio:c.pu>0?c.hPu/c.pu:0};
+  }).sort(function(a,b){return b.hSa-a.hSa;});
+  return{byAsin,byCamp};
+}
+
+function computeTargetingData(brand){
+  var rows=TARGETING_BY_BRAND[brand];
+  if(!rows||rows.length===0)return null;
+  var r0=rows[0]||{};
+  var cTgt=getCol(r0,['targeting']);
+  var cMT=getCol(r0,['targeting match type']);
+  var cCamp=getCol(r0,['campaign name']);
+  var cSpend=getCol(r0,['total cost']);
+  var cSales=getCol(r0,['sales']);
+  var cPurch=getCol(r0,['purchases']);
+  var cImps=getCol(r0,['impressions']);
+  var cClicks=getCol(r0,['clicks']);
+  var cStatus=getCol(r0,['target status']);
+  var cBid=getCol(r0,['target bid']);
+
+  var AUTO_TYPES=['close-match','loose-match','substitutes','complements'];
+  var keywords=[],asinTargets=[],autoTypes=[];
+
+  rows.forEach(function(r){
+    var tgt=String(r[cTgt]||'').trim();
+    var mt=String(r[cMT]||'').trim();
+    var sp=num(r[cSpend]),sa=num(r[cSales]),pu=num(r[cPurch]),im=num(r[cImps]),cl=num(r[cClicks]);
+    var camp=String(r[cCamp]||'').trim();
+    var status=String(r[cStatus]||'').trim();
+    var bid=parseFloat(r[cBid])||0;
+    var base={tgt,mt,camp,sp,sa,pu,im,cl,status,bid,
+      roas:sp>0?sa/sp:0,cvr:cl>0?pu/cl:0,ctr:im>0?cl/im:0};
+    if(AUTO_TYPES.includes(tgt.toLowerCase())){
+      autoTypes.push({...base,subType:tgt.toLowerCase()});
+    } else if(/^asin=/i.test(tgt)){
+      asinTargets.push({...base,asin:tgt.replace(/^asin="/i,'').replace(/"$/,'')});
+    } else if(tgt&&mt!=='TARGETING_EXPRESSION_PREDEFINED'){
+      keywords.push(base);
+    }
+  });
+
+  keywords.sort(function(a,b){return b.sp-a.sp;});
+  asinTargets.sort(function(a,b){return b.sp-a.sp;});
+  autoTypes.sort(function(a,b){return b.sp-a.sp;});
+  return{keywords,asinTargets,autoTypes};
+}
+
+function computeISData(brand){
+  var strRows=STRIS_BY_BRAND[brand];
+  var tosRows=TOSIS_BY_BRAND[brand];
+  if(!strRows&&!tosRows)return null;
+
+  // STR Impression Share — aggregate by search term
+  var strIS=null;
+  if(strRows&&strRows.length>0){
+    var r0=strRows[0]||{};
+    var cTerm=getCol(r0,['search term']);
+    var cIS=getCol(r0,['impression share']);
+    var cRank=getCol(r0,['impression share rank']);
+    var cSpend=getCol(r0,['total cost']);
+    var cPurch=getCol(r0,['purchases']);
+    var cSales=getCol(r0,['sales']);
+    var cClicks=getCol(r0,['clicks']);
+    var cAdProd=getCol(r0,['ad product']);
+    var termMap={};
+    strRows.forEach(function(r){
+      var term=String(r[cTerm]||'').trim().toLowerCase();if(!term)return;
+      var isRaw=String(r[cIS]||'').replace('%','');
+      var isPct=parseFloat(isRaw)||0;
+      var rank=parseFloat(r[cRank])||0;
+      var sp=num(r[cSpend]),pu=num(r[cPurch]),sa=num(r[cSales]),cl=num(r[cClicks]);
+      if(!termMap[term])termMap[term]={term,sp:0,pu:0,sa:0,cl:0,isVals:[],rankVals:[]};
+      termMap[term].sp+=sp;termMap[term].pu+=pu;termMap[term].sa+=sa;termMap[term].cl+=cl;
+      if(isPct>0)termMap[term].isVals.push(isPct);
+      if(rank>0)termMap[term].rankVals.push(rank);
+    });
+    strIS=Object.values(termMap).map(function(t){
+      var avgIS=t.isVals.length>0?t.isVals.reduce(function(s,v){return s+v;},0)/t.isVals.length:0;
+      var avgRank=t.rankVals.length>0?t.rankVals.reduce(function(s,v){return s+v;},0)/t.rankVals.length:0;
+      var roas=t.sp>0?t.sa/t.sp:0;
+      // Flag: opportunity = converting + low IS; overexposed = no conversion + high IS
+      var flag=t.pu>0&&avgIS<20?'opportunity':t.pu===0&&avgIS>50?'overexposed':t.pu>0?'converting':'low';
+      return{...t,avgIS,avgRank,roas,flag};
+    }).sort(function(a,b){return b.sp-a.sp;});
+  }
+
+  // TOS IS — aggregate by campaign
+  var tosIS=null;
+  if(tosRows&&tosRows.length>0){
+    var r0=tosRows[0]||{};
+    var cCamp=getCol(r0,['campaign name']);
+    var cTOS=getCol(r0,['top-of-search impression share']);
+    var cSpend=getCol(r0,['total cost']);
+    var cSales=getCol(r0,['sales']);
+    var cPurch=getCol(r0,['purchases']);
+    var campMap={};
+    tosRows.forEach(function(r){
+      var camp=String(r[cCamp]||'').trim();if(!camp)return;
+      var tosRaw=String(r[cTOS]||'').replace('%','');
+      var tosPct=parseFloat(tosRaw)||0;
+      var sp=num(r[cSpend]),sa=num(r[cSales]),pu=num(r[cPurch]);
+      if(!campMap[camp])campMap[camp]={camp,sp:0,sa:0,pu:0,tosVals:[]};
+      campMap[camp].sp+=sp;campMap[camp].sa+=sa;campMap[camp].pu+=pu;
+      if(tosPct>0)campMap[camp].tosVals.push(tosPct);
+    });
+    tosIS=Object.values(campMap).map(function(c){
+      var avgTOS=c.tosVals.length>0?c.tosVals.reduce(function(s,v){return s+v;},0)/c.tosVals.length:0;
+      var roas=c.sp>0?c.sa/c.sp:0;
+      // Flag: bid-up candidate = good ROAS + low TOS IS; already dominant = high TOS IS + good ROAS
+      var flag=roas>=2&&avgTOS<10?'bid-up':roas>=2&&avgTOS>=10?'strong':roas<1?'poor':'average';
+      return{...c,avgTOS,roas,flag};
+    }).sort(function(a,b){return b.sp-a.sp;});
+  }
+
+  return{strIS,tosIS};
 }
 
 function findTopCamps(nbCamps,avgROAS,nbSpend){
@@ -930,15 +1338,23 @@ function renderBrandContent(brand){
   var el=document.getElementById('brand-content');
   var tabs=['overview','tokens','callout'];
   var tabLabels={'overview':'Overview','tokens':'Token Analysis','callout':'Monthly Callout'};
+  if(m.productData||m.convertedData){tabs.push('products');tabLabels['products']='Products';}
+  if(m.placementData){tabs.push('placements');tabLabels['placements']='Placements';}
+  if(m.dspData){tabs.push('dsp');tabLabels['dsp']='DSP';}
+  if(m.targetingData){tabs.push('targeting');tabLabels['targeting']='Targeting';}
+  if(m.isData){tabs.push('impressionshare');tabLabels['impressionshare']='Imp. Share';}
   var tabsHTML=tabs.map(function(t){
     return'<button class="stab'+(sec===t?' on':'')+'" onclick="setSection(\''+brand.replace(/'/g,"\\'")+'\',\''+t+'\')">'+tabLabels[t]+'</button>';
   }).join('');
-
   var bodyHTML='';
   if(sec==='overview')bodyHTML=renderOverview(brand,m);
   else if(sec==='tokens')bodyHTML=renderTokens(brand,m);
   else if(sec==='callout')bodyHTML=renderCallout(brand,m);
-
+  else if(sec==='products')bodyHTML=renderProducts(brand,m);
+  else if(sec==='placements')bodyHTML=renderPlacements(brand,m);
+  else if(sec==='dsp')bodyHTML=renderDSP(brand,m);
+  else if(sec==='targeting')bodyHTML=renderTargeting(brand,m);
+  else if(sec==='impressionshare')bodyHTML=renderImpressionShare(brand,m);
   el.innerHTML='<div class="section-tabs">'+tabsHTML+'</div><div id="section-body">'+bodyHTML+'</div>';
   if(sec==='callout')bindCallout(brand);
 }
@@ -1015,8 +1431,556 @@ function renderOverview(brand,m){
 function mc(lbl,val,sub){
   return'<div class="card"><div class="mc-lbl">'+esc(lbl)+'</div><div class="mc-val">'+val+'</div>'+(sub?'<div class="mc-sub">'+sub+'</div>':'')+'</div>';
 }
+
+// ── Products ──
+var PROD_SUBTAB={};
+function setProdSubtab(brand,tab){PROD_SUBTAB[brand]=tab;renderBrandContent(brand);}
+
+function renderProducts(brand,m){
+  var hasAdv=!!(m.productData&&m.productData.length);
+  var hasConv=!!(m.convertedData&&m.convertedData.byAsin&&m.convertedData.byAsin.length);
+  var active=PROD_SUBTAB[brand]||(hasAdv?'advertised':'converted');
+  if(!hasAdv&&active==='advertised')active='converted';
+  if(!hasConv&&active==='converted')active='advertised';
+
+  var nav='<div style="display:flex;gap:6px;margin-bottom:20px">'+
+    (hasAdv?'<button class="stab'+(active==='advertised'?' on':'')+'" onclick="setProdSubtab(\''+brand.replace(/'/g,"\\'")+'\',\'advertised\')">Advertised Products</button>':'')+
+    (hasConv?'<button class="stab'+(active==='converted'?' on':'')+'" onclick="setProdSubtab(\''+brand.replace(/'/g,"\\'")+'\',\'converted\')">Converted Products</button>':'')+
+    (hasConv?'<button class="stab'+(active==='halo'?' on':'')+'" onclick="setProdSubtab(\''+brand.replace(/'/g,"\\'")+'\',\'halo\')">Halo by Campaign</button>':'')+
+  '</div>';
+
+  if(active==='advertised'){
+    var rows=m.productData;
+    var totalSp=rows.reduce(function(s,r){return s+r.sp;},0);
+    return nav+'<div class="sec-head"><div><div class="results-title">Advertised Products</div><div class="results-sub">Aggregated by ASIN · ranked by spend</div></div></div>'+
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr>'+
+      '<th style="width:32px">#</th><th style="width:96px">ASIN</th><th>Product</th>'+
+      '<th class="num" style="width:80px">Spend</th><th class="num" style="width:56px">% Sp</th>'+
+      '<th class="num" style="width:80px">Sales</th><th class="num" style="width:66px">ROAS</th>'+
+      '<th class="num" style="width:66px">Orders</th><th class="num" style="width:76px">CPA</th>'+
+      '<th class="num" style="width:70px">NTB Rate</th><th class="num" style="width:80px">Halo Sales</th>'+
+    '</tr></thead><tbody>'+
+    rows.map(function(r,i){
+      var roasC=r.roas>=4?'var(--green)':r.roas>=2?'var(--white)':r.roas>=1?'var(--amber)':'var(--red)';
+      var nameShort=r.name.length>60?r.name.slice(0,60)+'…':r.name;
+      return'<tr>'+
+        '<td style="font-family:var(--mono);font-size:11px;color:var(--gray-dim)">'+(i+1)+'</td>'+
+        '<td style="font-family:var(--mono);font-size:11px;color:var(--green)">'+esc(r.asin)+'</td>'+
+        '<td style="font-size:11px;color:var(--gray)" title="'+esc(r.name)+'">'+esc(nameShort)+'</td>'+
+        '<td class="num" style="font-weight:500">'+fmt$(r.sp)+'</td>'+
+        '<td class="num" style="color:var(--gray-dim)">'+(totalSp>0?(r.sp/totalSp*100).toFixed(1):'0')+'%</td>'+
+        '<td class="num">'+fmt$(r.sa)+'</td>'+
+        '<td class="num" style="color:'+roasC+';font-weight:500">'+fmtX(r.roas)+'</td>'+
+        '<td class="num">'+r.pu+'</td>'+
+        '<td class="num" style="color:var(--gray-dim)">'+(r.pu>0?fmt$(r.cpa):'—')+'</td>'+
+        '<td class="num" style="color:var(--amber)">'+(r.ntb>0?(r.ntbRate*100).toFixed(0)+'%':'—')+'</td>'+
+        '<td class="num" style="color:var(--gray-dim)">'+(r.halo>0?fmt$(r.halo):'—')+'</td>'+
+      '</tr>';
+    }).join('')+'</tbody></table></div>';
+  }
+
+  if(active==='converted'){
+    var rows=m.convertedData.byAsin;
+    var totalPu=rows.reduce(function(s,r){return s+r.pu;},0);
+    return nav+'<div class="sec-head"><div><div class="results-title">Converted Products</div><div class="results-sub">What customers actually bought · includes halo purchases</div></div></div>'+
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr>'+
+      '<th style="width:32px">#</th><th style="width:96px">ASIN</th><th>Product</th>'+
+      '<th class="num" style="width:80px">Purchases</th><th class="num" style="width:80px">Sales</th>'+
+      '<th class="num" style="width:80px">Halo Pu</th><th class="num" style="width:80px">Halo Sales</th>'+
+      '<th class="num" style="width:80px">Halo %</th><th class="num" style="width:70px">NTB</th>'+
+    '</tr></thead><tbody>'+
+    rows.map(function(r,i){
+      var nameShort=r.name.length>60?r.name.slice(0,60)+'…':r.name;
+      var haloC=r.haloPct>0.3?'var(--amber)':r.haloPct>0?'var(--white)':'var(--gray-dim)';
+      return'<tr>'+
+        '<td style="font-family:var(--mono);font-size:11px;color:var(--gray-dim)">'+(i+1)+'</td>'+
+        '<td style="font-family:var(--mono);font-size:11px;color:var(--green)">'+esc(r.asin)+'</td>'+
+        '<td style="font-size:11px;color:var(--gray)" title="'+esc(r.name)+'">'+esc(nameShort)+'</td>'+
+        '<td class="num" style="font-weight:500">'+r.pu+'</td>'+
+        '<td class="num">'+fmt$(r.sa)+'</td>'+
+        '<td class="num" style="color:var(--amber)">'+(r.hPu>0?r.hPu:'—')+'</td>'+
+        '<td class="num" style="color:var(--amber)">'+(r.hSa>0?fmt$(r.hSa):'—')+'</td>'+
+        '<td class="num" style="color:'+haloC+';font-weight:500">'+(r.pu+r.hPu>0?(r.haloPct*100).toFixed(0)+'%':'—')+'</td>'+
+        '<td class="num" style="color:var(--gray-dim)">'+(r.ntb>0?r.ntb:'—')+'</td>'+
+      '</tr>';
+    }).join('')+'</tbody></table></div>';
+  }
+
+  if(active==='halo'){
+    var rows=m.convertedData.byCamp;
+    return nav+'<div class="sec-head"><div><div class="results-title">Halo by Campaign</div><div class="results-sub">Campaigns ranked by halo sales — customers buying other products</div></div></div>'+
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr>'+
+      '<th style="width:32px">#</th><th>Campaign</th>'+
+      '<th class="num" style="width:80px">Purchases</th><th class="num" style="width:80px">Sales</th>'+
+      '<th class="num" style="width:88px">Halo Purchases</th><th class="num" style="width:88px">Halo Sales</th>'+
+      '<th class="num" style="width:80px">Halo %</th>'+
+    '</tr></thead><tbody>'+
+    rows.map(function(r,i){
+      var haloC=r.haloPct>0.3?'var(--amber)':r.haloPct>0.1?'var(--white)':'var(--gray-dim)';
+      var campShort=r.camp.length>50?r.camp.slice(0,50)+'…':r.camp;
+      return'<tr>'+
+        '<td style="font-family:var(--mono);font-size:11px;color:var(--gray-dim)">'+(i+1)+'</td>'+
+        '<td style="font-size:11px;color:var(--white)" title="'+esc(r.camp)+'">'+esc(campShort)+'</td>'+
+        '<td class="num">'+r.pu+'</td>'+
+        '<td class="num">'+fmt$(r.sa)+'</td>'+
+        '<td class="num" style="color:var(--amber)">'+(r.hPu>0?r.hPu:'—')+'</td>'+
+        '<td class="num" style="color:var(--amber)">'+(r.hSa>0?fmt$(r.hSa):'—')+'</td>'+
+        '<td class="num" style="color:'+haloC+';font-weight:500">'+(r.pu+r.hPu>0?(r.haloPct*100).toFixed(0)+'%':'—')+'</td>'+
+      '</tr>';
+    }).join('')+'</tbody></table></div>';
+  }
+  return nav+'<div class="hint-box">No product data available.</div>';
+}
+
+// ── Placements ──
+function renderPlacements(brand,m){
+  var rows=m.placementData;
+  if(!rows||rows.length===0)return'<div class="hint-box">No placement data for this brand.</div>';
+  var totalSp=rows.reduce(function(s,r){return s+r.sp;},0)||1;
+  var COLOR_MAP={'Top of Search on-Amazon':'var(--green)','Detail Page on-Amazon':'var(--white)',
+    'Other on-Amazon':'var(--gray)','Off Amazon':'var(--gray-dim)'};
+
+  var groupSection='<div class="sec-head"><div><div class="results-title">Placement Breakdown</div><div class="results-sub">Each placement vs. total PPC spend</div></div></div>'+
+  '<div class="card">'+
+  rows.filter(function(r){return r.sp>0;}).map(function(r){
+    var pct=Math.min(r.sp/totalSp*100,100);
+    var color=COLOR_MAP[r.plc]||'var(--gray-dim)';
+    return'<div style="margin-bottom:14px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">'+
+        '<span style="font-family:var(--sans);font-size:12px;color:var(--white)">'+esc(r.plc)+'</span>'+
+        '<span style="font-family:var(--mono);font-size:11px;color:var(--white)">'+fmt$(r.sp)+'&nbsp;&nbsp;'+
+          '<span style="color:var(--gray-dim);font-size:10px">'+pct.toFixed(1)+'%</span></span>'+
+      '</div>'+
+      '<div style="display:flex;gap:16px;margin-bottom:6px">'+
+        '<span style="font-family:var(--mono);font-size:10px;color:var(--gray-dim)">ROAS: <span style="color:'+(r.roas>=2?'var(--green)':r.roas>=1?'var(--amber)':'var(--red)')+'">'+fmtX(r.roas)+'</span></span>'+
+        '<span style="font-family:var(--mono);font-size:10px;color:var(--gray-dim)">Orders: '+r.pu+'</span>'+
+        '<span style="font-family:var(--mono);font-size:10px;color:var(--gray-dim)">CVR: '+(r.cl>0?(r.cvr*100).toFixed(2)+'%':'—')+'</span>'+
+      '</div>'+
+      '<div style="height:6px;background:var(--line);border-radius:3px">'+
+        '<div style="height:6px;width:'+pct.toFixed(1)+'%;background:'+color+';border-radius:3px"></div>'+
+      '</div>'+
+    '</div>';
+  }).join('')+'</div>';
+
+  var tableSection='<div class="sec-head" style="margin-top:8px"><div><div class="results-title">By Placement</div><div class="results-sub">Ranked by spend</div></div></div>'+
+  '<div class="tbl-wrap"><table class="tbl"><thead><tr>'+
+    '<th>Placement</th>'+
+    '<th class="num" style="width:80px">Spend</th>'+
+    '<th class="num" style="width:80px">Sales</th>'+
+    '<th class="num" style="width:66px">ROAS</th>'+
+    '<th class="num" style="width:66px">Orders</th>'+
+    '<th class="num" style="width:66px">CVR</th>'+
+    '<th class="num" style="width:60px">CTR</th>'+
+  '</tr></thead><tbody>'+
+  rows.map(function(r){
+    var roasC=r.roas>=4?'var(--green)':r.roas>=2?'var(--white)':r.roas>=1?'var(--amber)':'var(--red)';
+    return'<tr>'+
+      '<td style="font-size:11px;color:var(--white)">'+esc(r.plc)+'</td>'+
+      '<td class="num">'+fmt$(r.sp)+'</td>'+
+      '<td class="num">'+fmt$(r.sa)+'</td>'+
+      '<td class="num" style="color:'+roasC+';font-weight:500">'+fmtX(r.roas)+'</td>'+
+      '<td class="num">'+r.pu+'</td>'+
+      '<td class="num">'+(r.cl>0?(r.cvr*100).toFixed(2)+'%':'—')+'</td>'+
+      '<td class="num" style="color:var(--gray-dim)">'+(r.im>0?(r.ctr*100).toFixed(2)+'%':'—')+'</td>'+
+    '</tr>';
+  }).join('')+'</tbody></table></div>';
+  return groupSection+tableSection;
+}
+
+// ── DSP ──
+var DSP_SUBTAB={};
+function setDSPSubtab(brand,tab){DSP_SUBTAB[brand]=tab;renderBrandContent(brand);}
+var GEO_FILTER={};
+function setGeoFilter(brand,val){GEO_FILTER[brand]=val;renderBrandContent(brand);}
+
+function renderDSP(brand,m){
+  var d=m.dspData;
+  if(!d)return'<div class="hint-box">No DSP data for this brand.</div>';
+  var tabs=[];
+  if(d.inventoryData&&d.inventoryData.length)tabs.push({id:'inventory',label:'Inventory'});
+  if(d.geoData&&d.geoData.length)tabs.push({id:'geo',label:'Geography'});
+  if(d.audienceData&&d.audienceData.length)tabs.push({id:'audience',label:'Audiences'});
+  if(d.reachData&&d.reachData.length)tabs.push({id:'reach',label:'Reach & Frequency'});
+  if(tabs.length===0)return'<div class="hint-box">No DSP report data found for this brand.</div>';
+  var active=DSP_SUBTAB[brand]||tabs[0].id;
+  if(!tabs.find(function(t){return t.id===active;}))active=tabs[0].id;
+  var nav='<div style="display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap">'+
+    tabs.map(function(t){
+      return'<button class="stab'+(active===t.id?' on':'')+'" onclick="setDSPSubtab(\''+brand.replace(/'/g,"\\'")+'\',\''+t.id+'\')">'+t.label+'</button>';
+    }).join('')+'</div>';
+
+  var body='';
+
+  if(active==='inventory'){
+    var rows=d.inventoryData;
+    var wasted=rows.filter(function(r){return r.pu===0&&r.sp>0;});
+    var wastedSp=wasted.reduce(function(s,r){return s+r.sp;},0);
+    var totalSp=rows.reduce(function(s,r){return s+r.sp;},0);
+    body='<div class="g3" style="margin-bottom:20px">'+
+      mc('Top 50 Sites by Spend',rows.length+' sites',fmt$(totalSp)+' total spend')+
+      mc('Wasted Sites (0 purchases)',wasted.length+' sites','<span class="neg">'+fmt$(wastedSp)+'</span> wasted')+
+      mc('Converting Sites',rows.filter(function(r){return r.pu>0;}).length+' sites','top: '+esc((rows.find(function(r){return r.pu>0;})||{site:''}).site.slice(0,30)))+
+    '</div>'+
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr>'+
+      '<th style="width:32px">#</th>'+
+      '<th>Site / App</th>'+
+      '<th style="width:100px">Supply Source</th>'+
+      '<th class="num" style="width:80px">Spend</th>'+
+      '<th class="num" style="width:80px">Sales</th>'+
+      '<th class="num" style="width:66px">ROAS</th>'+
+      '<th class="num" style="width:66px">Orders</th>'+
+      '<th style="width:70px">Status</th>'+
+    '</tr></thead><tbody>'+
+    rows.map(function(r,i){
+      var roasC=r.roas>=3?'var(--green)':r.roas>=1?'var(--white)':r.pu===0?'var(--red)':'var(--amber)';
+      var badge=r.pu===0&&r.sp>5
+        ?'<span style="display:inline-block;padding:1px 7px;border-radius:4px;font-size:9px;font-family:var(--mono);background:rgba(240,82,82,.12);color:var(--red);border:1px solid rgba(240,82,82,.2)">wasted</span>'
+        :r.pu>0?'<span style="display:inline-block;padding:1px 7px;border-radius:4px;font-size:9px;font-family:var(--mono);background:rgba(62,207,116,.08);color:var(--green);border:1px solid rgba(62,207,116,.2)">converting</span>':'';
+      return'<tr>'+
+        '<td style="font-family:var(--mono);font-size:11px;color:var(--gray-dim)">'+(i+1)+'</td>'+
+        '<td style="font-size:11px;color:var(--white)">'+esc(r.site)+'</td>'+
+        '<td style="font-size:10px;color:var(--gray-dim)">'+esc(r.src)+'</td>'+
+        '<td class="num" style="font-weight:500">'+fmt$(r.sp)+'</td>'+
+        '<td class="num">'+fmt$(r.sa)+'</td>'+
+        '<td class="num" style="color:'+roasC+';font-weight:500">'+(r.sp>0?fmtX(r.roas):'—')+'</td>'+
+        '<td class="num">'+r.pu+'</td>'+
+        '<td>'+badge+'</td>'+
+      '</tr>';
+    }).join('')+'</tbody></table></div>';
+  }
+
+  if(active==='geo'){
+    var rows=d.geoData;
+    var usOnly=GEO_FILTER[brand]!=='all';
+    var filtered=usOnly?rows.filter(function(r){return r.country==='United States';}):rows;
+    var totalSp=filtered.reduce(function(s,r){return s+r.sp;},0);
+    var wasted=filtered.filter(function(r){return r.pu===0&&r.sp>0;});
+    body='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">'+
+      '<div style="display:flex;gap:6px">'+
+        ['us','all'].map(function(v){
+          var on=(v==='us'&&usOnly)||(v==='all'&&!usOnly);
+          return'<button onclick="setGeoFilter(\''+brand.replace(/'/g,"\\'")+'\',\''+v+'\')" style="padding:5px 14px;border-radius:20px;font-size:12px;font-family:var(--sans);cursor:pointer;font-weight:'+(on?'600':'400')+';background:'+(on?'var(--white)':'transparent')+';color:'+(on?'var(--black)':'var(--gray)')+';border:1px solid '+(on?'var(--white)':'var(--line)')+'">'+
+            (v==='us'?'US Only':'All Regions')+'</button>';
+        }).join('')+
+      '</div>'+
+      '<span style="font-family:var(--mono);font-size:11px;color:var(--gray-dim)">'+filtered.length+' regions &middot; '+wasted.length+' with 0 purchases</span>'+
+    '</div>'+
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr>'+
+      '<th style="width:32px">#</th>'+
+      (!usOnly?'<th style="width:120px">Country</th>':'')+
+      '<th>Region</th>'+
+      '<th class="num" style="width:80px">Spend</th>'+
+      '<th class="num" style="width:60px">% Sp</th>'+
+      '<th class="num" style="width:80px">Sales</th>'+
+      '<th class="num" style="width:66px">ROAS</th>'+
+      '<th class="num" style="width:66px">Orders</th>'+
+    '</tr></thead><tbody>'+
+    filtered.map(function(r,i){
+      var roasC=r.roas>=3?'var(--green)':r.roas>=1?'var(--white)':r.pu===0&&r.sp>0?'var(--red)':'var(--gray-dim)';
+      var spPct=totalSp>0?r.sp/totalSp*100:0;
+      return'<tr>'+
+        '<td style="font-family:var(--mono);font-size:11px;color:var(--gray-dim)">'+(i+1)+'</td>'+
+        (!usOnly?'<td style="font-size:11px;color:var(--gray)">'+esc(r.country)+'</td>':'')+
+        '<td style="font-size:11px;color:var(--white)">'+esc(r.region)+'</td>'+
+        '<td class="num" style="font-weight:500">'+fmt$(r.sp)+'</td>'+
+        '<td class="num" style="color:var(--gray-dim)">'+spPct.toFixed(1)+'%</td>'+
+        '<td class="num">'+fmt$(r.sa)+'</td>'+
+        '<td class="num" style="color:'+roasC+';font-weight:500">'+(r.sp>0?fmtX(r.roas):'—')+'</td>'+
+        '<td class="num">'+r.pu+'</td>'+
+      '</tr>';
+    }).join('')+'</tbody></table></div>';
+  }
+
+  if(active==='audience'){
+    var rows=d.audienceData;
+    var CLASS_COLORS={'BEHAVIOR':'var(--green)','USER_AGENT':'var(--amber)','CUSTOM_ASIN':'var(--white)','INVENTORY':'var(--gray)','BEHAVIOR_DYNAMIC':'var(--green)'};
+    body='<div class="tbl-wrap"><table class="tbl"><thead><tr>'+
+      '<th style="width:32px">#</th>'+
+      '<th>Audience Segment</th>'+
+      '<th style="width:100px">Type</th>'+
+      '<th class="num" style="width:80px">Spend</th>'+
+      '<th class="num" style="width:80px">Purchases</th>'+
+      '<th class="num" style="width:80px">CPA</th>'+
+    '</tr></thead><tbody>'+
+    rows.map(function(r,i){
+      var color=CLASS_COLORS[r.type]||'var(--gray)';
+      var badge=r.type?'<span style="display:inline-block;padding:1px 7px;border-radius:4px;font-size:9px;font-family:var(--mono);background:rgba(255,255,255,.06);color:'+color+';border:1px solid var(--line)">'+esc(r.type)+'</span>':'—';
+      return'<tr>'+
+        '<td style="font-family:var(--mono);font-size:11px;color:var(--gray-dim)">'+(i+1)+'</td>'+
+        '<td style="font-size:11px;color:var(--white)">'+esc(r.seg)+'</td>'+
+        '<td>'+badge+'</td>'+
+        '<td class="num" style="font-weight:500">'+fmt$(r.sp)+'</td>'+
+        '<td class="num">'+r.pu+'</td>'+
+        '<td class="num" style="color:'+(r.pu>0?(r.cpa<10?'var(--green)':'var(--white)'):'var(--red)')+';">'+(r.pu>0?fmt$(r.cpa):'—')+'</td>'+
+      '</tr>';
+    }).join('')+'</tbody></table></div>';
+  }
+
+  if(active==='reach'){
+    var rows=d.reachData;
+    var highFreq=rows.filter(function(r){return r.avgFreq>8;});
+    body='<div class="g3" style="margin-bottom:20px">'+
+      mc('Campaigns w/ Reach Data',rows.length+' campaigns','')+
+      mc('High Frequency (>8×)','<span class="'+(highFreq.length>0?'warn-c':'pos')+'">'+highFreq.length+' campaigns</span>',highFreq.length>0?'Potential ad fatigue':'')+
+      mc('Avg Frequency Range',rows.length>0?rows[rows.length-1].avgFreq.toFixed(1)+'\xd7 \u2013 '+rows[0].avgFreq.toFixed(1)+'\xd7':'','')+
+    '</div>'+
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr>'+
+      '<th style="width:32px">#</th>'+
+      '<th>Campaign</th>'+
+      '<th class="num" style="width:80px">Impressions</th>'+
+      '<th class="num" style="width:70px">Reach</th>'+
+      '<th class="num" style="width:80px">Avg Freq</th>'+
+      '<th class="num" style="width:70px">10×+</th>'+
+      '<th class="num" style="width:70px">10×+ %</th>'+
+      '<th style="width:80px">Status</th>'+
+    '</tr></thead><tbody>'+
+    rows.map(function(r,i){
+      var isHigh=r.avgFreq>8;
+      var pct10=r.reach>0?r.freq10plus/r.reach*100:0;
+      var badge=isHigh
+        ?'<span style="display:inline-block;padding:1px 7px;border-radius:4px;font-size:9px;font-family:var(--mono);background:rgba(232,200,64,.12);color:var(--amber);border:1px solid rgba(232,200,64,.2)">high freq</span>'
+        :'<span style="display:inline-block;padding:1px 7px;border-radius:4px;font-size:9px;font-family:var(--mono);background:rgba(62,207,116,.08);color:var(--green);border:1px solid rgba(62,207,116,.2)">ok</span>';
+      var campShort=r.camp.length>45?r.camp.slice(0,45)+'…':r.camp;
+      return'<tr>'+
+        '<td style="font-family:var(--mono);font-size:11px;color:var(--gray-dim)">'+(i+1)+'</td>'+
+        '<td style="font-size:11px;color:var(--white)" title="'+esc(r.camp)+'">'+esc(campShort)+'</td>'+
+        '<td class="num">'+fmtK(r.imps)+'</td>'+
+        '<td class="num">'+fmtK(r.reach)+'</td>'+
+        '<td class="num" style="color:'+(isHigh?'var(--amber)':'var(--white)')+';font-weight:'+(isHigh?'600':'400')+'">'+r.avgFreq.toFixed(1)+'×</td>'+
+        '<td class="num" style="color:'+(pct10>40?'var(--red)':pct10>20?'var(--amber)':'var(--white)')+'">'+fmtK(r.freq10plus)+'</td>'+
+        '<td class="num" style="color:'+(pct10>40?'var(--red)':pct10>20?'var(--amber)':'var(--gray-dim)')+'">'+pct10.toFixed(1)+'%</td>'+
+        '<td>'+badge+'</td>'+
+      '</tr>';
+    }).join('')+'</tbody></table></div>';
+  }
+
+  return nav+body;
+}
+
+// ── Targeting ──
+var TGT_SUBTAB={};
+function setTgtSubtab(brand,tab){TGT_SUBTAB[brand]=tab;renderBrandContent(brand);}
+
+function renderTargeting(brand,m){
+  var d=m.targetingData;
+  if(!d)return'<div class="hint-box">No targeting data for this brand.</div>';
+  var tabs=[];
+  if(d.keywords&&d.keywords.length)tabs.push({id:'keywords',label:'Keywords'});
+  if(d.asinTargets&&d.asinTargets.length)tabs.push({id:'asin',label:'ASIN Targets'});
+  if(d.autoTypes&&d.autoTypes.length)tabs.push({id:'auto',label:'Auto Types'});
+  var active=TGT_SUBTAB[brand]||(tabs[0]&&tabs[0].id)||'keywords';
+  if(!tabs.find(function(t){return t.id===active;}))active=tabs[0]&&tabs[0].id;
+
+  var nav='<div style="display:flex;gap:6px;margin-bottom:20px">'+
+    tabs.map(function(t){
+      return'<button class="stab'+(active===t.id?' on':'')+'" onclick="setTgtSubtab(\''+brand.replace(/'/g,"\\'")+'\',\''+t.id+'\')">'+t.label+'</button>';
+    }).join('')+'</div>';
+
+  function tgtTable(rows,showAsin){
+    var totalSp=rows.reduce(function(s,r){return s+r.sp;},0);
+    return'<div class="tbl-wrap"><table class="tbl"><thead><tr>'+
+      '<th style="width:32px">#</th>'+
+      (showAsin?'<th style="width:96px">ASIN</th>':'')+
+      '<th>Target / Keyword</th>'+
+      '<th style="width:60px">Match</th>'+
+      '<th style="width:120px">Campaign</th>'+
+      '<th class="num" style="width:80px">Spend</th>'+
+      '<th class="num" style="width:56px">% Sp</th>'+
+      '<th class="num" style="width:80px">Sales</th>'+
+      '<th class="num" style="width:66px">ROAS</th>'+
+      '<th class="num" style="width:66px">Orders</th>'+
+      '<th class="num" style="width:60px">CVR</th>'+
+      '<th style="width:60px">Status</th>'+
+    '</tr></thead><tbody>'+
+    rows.map(function(r,i){
+      var roasC=r.roas>=4?'var(--green)':r.roas>=2?'var(--white)':r.roas>=1?'var(--amber)':'var(--red)';
+      var campShort=r.camp.length>30?r.camp.slice(0,30)+'…':r.camp;
+      var spPct=totalSp>0?(r.sp/totalSp*100).toFixed(1)+'%':'—';
+      var statusBadge=r.status==='PAUSED'
+        ?'<span style="font-size:9px;font-family:var(--mono);color:var(--gray-dim)">paused</span>'
+        :'';
+      var tgtDisplay=showAsin?(r.asin||r.tgt):r.tgt;
+      var mtBadge=r.mt?'<span style="display:inline-block;padding:1px 6px;border-radius:4px;font-size:9px;font-family:var(--mono);background:rgba(255,255,255,.06);color:var(--gray);border:1px solid var(--line)">'+esc(r.mt)+'</span>':'';
+      return'<tr>'+
+        '<td style="font-family:var(--mono);font-size:11px;color:var(--gray-dim)">'+(i+1)+'</td>'+
+        (showAsin?'<td style="font-family:var(--mono);font-size:11px;color:var(--green)">'+esc(r.asin||'')+'</td>':'')+
+        '<td style="font-size:11px;color:var(--white)">'+esc(tgtDisplay)+'</td>'+
+        '<td>'+mtBadge+'</td>'+
+        '<td style="font-size:10px;color:var(--gray-dim)" title="'+esc(r.camp)+'">'+esc(campShort)+'</td>'+
+        '<td class="num" style="font-weight:500">'+fmt$(r.sp)+'</td>'+
+        '<td class="num" style="color:var(--gray-dim)">'+spPct+'</td>'+
+        '<td class="num">'+fmt$(r.sa)+'</td>'+
+        '<td class="num" style="color:'+roasC+';font-weight:500">'+fmtX(r.roas)+'</td>'+
+        '<td class="num">'+r.pu+'</td>'+
+        '<td class="num" style="color:var(--gray-dim)">'+(r.cl>0?(r.cvr*100).toFixed(2)+'%':'—')+'</td>'+
+        '<td>'+statusBadge+'</td>'+
+      '</tr>';
+    }).join('')+'</tbody></table></div>';
+  }
+
+  if(active==='keywords'){
+    var wasted=d.keywords.filter(function(r){return r.pu===0&&r.sp>0;});
+    var wastedSp=wasted.reduce(function(s,r){return s+r.sp;},0);
+    return nav+
+      '<div class="g3" style="margin-bottom:20px">'+
+        mc('Total Keywords',d.keywords.length+' targets','')+
+        mc('Wasted Keywords','<span class="neg">'+wasted.length+' targets</span>','<span class="neg">'+fmt$(wastedSp)+' wasted</span>')+
+        mc('Avg Keyword ROAS',fmtX(d.keywords.reduce(function(s,r){return s+r.sa;},0)/Math.max(d.keywords.reduce(function(s,r){return s+r.sp;},0),1)),'')+
+      '</div>'+
+      tgtTable(d.keywords,false);
+  }
+  if(active==='asin'){
+    var wasted=d.asinTargets.filter(function(r){return r.pu===0&&r.sp>0;});
+    var wastedSp=wasted.reduce(function(s,r){return s+r.sp;},0);
+    return nav+
+      '<div class="g3" style="margin-bottom:20px">'+
+        mc('ASIN Targets',d.asinTargets.length+' targets','')+
+        mc('Wasted ASIN Targets','<span class="neg">'+wasted.length+' targets</span>','<span class="neg">'+fmt$(wastedSp)+' wasted</span>')+
+        mc('Avg PAT ROAS',fmtX(d.asinTargets.reduce(function(s,r){return s+r.sa;},0)/Math.max(d.asinTargets.reduce(function(s,r){return s+r.sp;},0),1)),'')+
+      '</div>'+
+      tgtTable(d.asinTargets,true);
+  }
+  if(active==='auto'){
+    var AUTO_COLORS={'close-match':'var(--green)','loose-match':'var(--amber)','substitutes':'var(--gray)','complements':'var(--white)'};
+    var totalSp=d.autoTypes.reduce(function(s,r){return s+r.sp;},0)||1;
+    return nav+
+      '<div class="card" style="margin-bottom:20px">'+
+        '<div class="slbl" style="margin-bottom:14px">Auto Type Performance</div>'+
+        d.autoTypes.map(function(r){
+          var pct=r.sp/totalSp*100;
+          var roasC=r.roas>=2?'var(--green)':r.roas>=1?'var(--amber)':'var(--red)';
+          var color=AUTO_COLORS[r.subType]||'var(--gray)';
+          return'<div style="margin-bottom:16px">'+
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
+              '<span style="display:flex;align-items:center;gap:8px">'+
+                '<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-family:var(--mono);background:rgba(255,255,255,.06);color:'+color+';border:1px solid var(--line)">'+esc(r.subType)+'</span>'+
+                '<span style="font-family:var(--mono);font-size:13px;color:var(--white);font-weight:600">'+fmt$(r.sp)+'</span>'+
+                '<span style="font-family:var(--mono);font-size:11px;color:'+roasC+'">'+fmtX(r.roas)+' ROAS</span>'+
+              '</span>'+
+              '<span style="font-family:var(--mono);font-size:10px;color:var(--gray-dim)">'+pct.toFixed(1)+'% of auto · '+r.pu+' orders</span>'+
+            '</div>'+
+            '<div style="height:6px;background:var(--line);border-radius:3px">'+
+              '<div style="height:6px;width:'+Math.min(pct,100).toFixed(1)+'%;background:'+color+';border-radius:3px;opacity:.8"></div>'+
+            '</div>'+
+          '</div>';
+        }).join('')+
+      '</div>';
+  }
+  return nav+'<div class="hint-box">No targeting data.</div>';
+}
+
+// ── Impression Share ──
+var IS_SUBTAB={};
+function setISSubtab(brand,tab){IS_SUBTAB[brand]=tab;renderBrandContent(brand);}
+
+function renderImpressionShare(brand,m){
+  var d=m.isData;
+  if(!d)return'<div class="hint-box">No impression share data for this brand.</div>';
+  var tabs=[];
+  if(d.strIS&&d.strIS.length)tabs.push({id:'str',label:'Search Term IS'});
+  if(d.tosIS&&d.tosIS.length)tabs.push({id:'tos',label:'Top-of-Search IS'});
+  var active=IS_SUBTAB[brand]||(tabs[0]&&tabs[0].id);
+  if(!tabs.find(function(t){return t.id===active;}))active=tabs[0]&&tabs[0].id;
+
+  var nav='<div style="display:flex;gap:6px;margin-bottom:20px">'+
+    tabs.map(function(t){
+      return'<button class="stab'+(active===t.id?' on':'')+'" onclick="setISSubtab(\''+brand.replace(/'/g,"\\'")+'\',\''+t.id+'\')">'+t.label+'</button>';
+    }).join('')+'</div>';
+
+  var FLAG_COLORS={opportunity:'var(--green)',overexposed:'var(--red)',converting:'var(--white)',low:'var(--gray-dim)'};
+  var FLAG_BG={opportunity:'rgba(62,207,116,.1)',overexposed:'rgba(240,82,82,.1)',converting:'rgba(255,255,255,.06)',low:'rgba(255,255,255,.03)'};
+  var FLAG_LABELS={opportunity:'Opportunity',overexposed:'Overexposed',converting:'Converting',low:'Low activity','bid-up':'Bid Up',strong:'Strong',poor:'Poor ROAS',average:'Average'};
+  var TOS_COLORS={'bid-up':'var(--green)','strong':'var(--green)','poor':'var(--red)','average':'var(--gray)'};
+  var TOS_BG={'bid-up':'rgba(62,207,116,.1)','strong':'rgba(62,207,116,.06)','poor':'rgba(240,82,82,.1)','average':'rgba(255,255,255,.06)'};
+
+  if(active==='str'){
+    var rows=d.strIS;
+    var opps=rows.filter(function(r){return r.flag==='opportunity';});
+    var overexp=rows.filter(function(r){return r.flag==='overexposed';});
+    var converting=rows.filter(function(r){return r.flag==='converting';});
+    return nav+
+      '<div class="g4" style="margin-bottom:20px">'+
+        mc('Total Terms',rows.length+' search terms','')+
+        mc('Opportunities','<span class="pos">'+opps.length+'</span>','Converting + IS &lt; 20%')+
+        mc('Overexposed','<span class="neg">'+overexp.length+'</span>','0 purchases + IS &gt; 50%')+
+        mc('Converting',converting.length+' terms','')+
+      '</div>'+
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr>'+
+        '<th style="width:32px">#</th>'+
+        '<th>Search Term</th>'+
+        '<th class="num" style="width:80px">Spend</th>'+
+        '<th class="num" style="width:80px">Sales</th>'+
+        '<th class="num" style="width:66px">ROAS</th>'+
+        '<th class="num" style="width:66px">Orders</th>'+
+        '<th class="num" style="width:80px">Imp. Share</th>'+
+        '<th class="num" style="width:60px">IS Rank</th>'+
+        '<th style="width:96px">Flag</th>'+
+      '</tr></thead><tbody>'+
+      rows.map(function(r,i){
+        var roasC=r.roas>=4?'var(--green)':r.roas>=2?'var(--white)':r.roas>=1?'var(--amber)':'var(--red)';
+        var fColor=FLAG_COLORS[r.flag]||'var(--gray)';
+        var fBg=FLAG_BG[r.flag]||'rgba(255,255,255,.06)';
+        var badge='<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-family:var(--mono);background:'+fBg+';color:'+fColor+';border:1px solid '+fBg.replace('.1','.3').replace('.06','.2').replace('.03','.1')+'">'+esc(FLAG_LABELS[r.flag]||r.flag)+'</span>';
+        return'<tr>'+
+          '<td style="font-family:var(--mono);font-size:11px;color:var(--gray-dim)">'+(i+1)+'</td>'+
+          '<td style="font-family:var(--mono);font-size:11px;color:var(--white)">'+esc(r.term)+'</td>'+
+          '<td class="num" style="font-weight:500">'+fmt$(r.sp)+'</td>'+
+          '<td class="num">'+fmt$(r.sa)+'</td>'+
+          '<td class="num" style="color:'+roasC+';font-weight:500">'+(r.sp>0?fmtX(r.roas):'—')+'</td>'+
+          '<td class="num">'+r.pu+'</td>'+
+          '<td class="num" style="color:'+(r.avgIS<20?'var(--red)':r.avgIS<50?'var(--amber)':'var(--green)')+'">'+r.avgIS.toFixed(2)+'%</td>'+
+          '<td class="num" style="color:var(--gray-dim)">'+(r.avgRank>0?'#'+Math.round(r.avgRank):'—')+'</td>'+
+          '<td>'+badge+'</td>'+
+        '</tr>';
+      }).join('')+'</tbody></table></div>'+
+      '<div class="tbl-note">Opportunity = converting + IS &lt; 20% (bid up) &middot; Overexposed = 0 purchases + IS &gt; 50% (bid down or negate)</div>';
+  }
+
+  if(active==='tos'){
+    var rows=d.tosIS;
+    var bidUp=rows.filter(function(r){return r.flag==='bid-up';});
+    var strong=rows.filter(function(r){return r.flag==='strong';});
+    return nav+
+      '<div class="g4" style="margin-bottom:20px">'+
+        mc('Total Campaigns',rows.length+' campaigns','')+
+        mc('Bid-Up Candidates','<span class="pos">'+bidUp.length+'</span>','ROAS &ge; 2× + TOS IS &lt; 10%')+
+        mc('Strong TOS',strong.length+' campaigns','ROAS &ge; 2× + TOS IS &ge; 10%')+
+        mc('Avg TOS IS',rows.length>0?(rows.reduce(function(s,r){return s+r.avgTOS;},0)/rows.length).toFixed(2)+'%':'',' across all campaigns')+
+      '</div>'+
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr>'+
+        '<th style="width:32px">#</th>'+
+        '<th>Campaign</th>'+
+        '<th class="num" style="width:88px">TOS Imp. Share</th>'+
+        '<th class="num" style="width:80px">Spend</th>'+
+        '<th class="num" style="width:80px">Sales</th>'+
+        '<th class="num" style="width:66px">ROAS</th>'+
+        '<th class="num" style="width:66px">Orders</th>'+
+        '<th style="width:96px">Flag</th>'+
+      '</tr></thead><tbody>'+
+      rows.map(function(r,i){
+        var roasC=r.roas>=4?'var(--green)':r.roas>=2?'var(--white)':r.roas>=1?'var(--amber)':'var(--red)';
+        var fColor=TOS_COLORS[r.flag]||'var(--gray)';
+        var fBg=TOS_BG[r.flag]||'rgba(255,255,255,.06)';
+        var badge='<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-family:var(--mono);background:'+fBg+';color:'+fColor+';border:1px solid rgba(255,255,255,.1)">'+esc(FLAG_LABELS[r.flag]||r.flag)+'</span>';
+        var campShort=r.camp.length>50?r.camp.slice(0,50)+'…':r.camp;
+        return'<tr>'+
+          '<td style="font-family:var(--mono);font-size:11px;color:var(--gray-dim)">'+(i+1)+'</td>'+
+          '<td style="font-size:11px;color:var(--white)" title="'+esc(r.camp)+'">'+esc(campShort)+'</td>'+
+          '<td class="num" style="color:'+(r.avgTOS<1?'var(--red)':r.avgTOS<10?'var(--amber)':'var(--green)')+';font-weight:600">'+r.avgTOS.toFixed(2)+'%</td>'+
+          '<td class="num" style="font-weight:500">'+fmt$(r.sp)+'</td>'+
+          '<td class="num">'+fmt$(r.sa)+'</td>'+
+          '<td class="num" style="color:'+roasC+';font-weight:500">'+fmtX(r.roas)+'</td>'+
+          '<td class="num">'+r.pu+'</td>'+
+          '<td>'+badge+'</td>'+
+        '</tr>';
+      }).join('')+'</tbody></table></div>'+
+      '<div class="tbl-note">Bid Up = ROAS &ge; 2× but TOS IS &lt; 10% (room to grow) &middot; Strong = already capturing TOS efficiently</div>';
+  }
+
+  return nav+'<div class="hint-box">No impression share data.</div>';
+}
+
 function spendBar(lbl,v,total,color){
-  var pct=total>0?Math.min(v/total*100,100):0;
   return'<div style="margin-bottom:12px">'+
     '<div style="display:flex;justify-content:space-between;margin-bottom:3px">'+
     '<span style="font-family:var(--mono);font-size:10px;color:var(--gray-dim)">'+esc(lbl)+'</span>'+
@@ -1542,7 +2506,7 @@ function dzSm(dzId,fileKey,lbl){
   var fKey=fileKey==='sqp-prev'?'sqpPrevLocal':'sqpCurrLocal';
   var hasFile=!!(csb[fKey]);
   return'<div class="dz-sm'+(hasFile?' ok':'')+'" id="dzsm-'+dzId+'">'+
-    '<input type="file" accept=".csv" onchange="handleSQPLocal(event,\''+fileKey+'\',\''+dzId+'\')">'+
+    '<input type="file" accept=".csv,.tsv,.txt" onchange="handleSQPLocal(event,\''+fileKey+'\',\''+dzId+'\')">'+
     '<div><div class="dz-sm-label">'+esc(lbl)+'</div><div class="dz-sm-hint" id="dzsm-hint-'+dzId+'">'+(hasFile?esc(csb[fKey+'Name']||'Loaded'):'CSV · click to upload')+'</div></div>'+
   '</div>';
 }
@@ -1591,7 +2555,11 @@ function handleSQPLocal(e,fileKey,dzId){
   parseSQP(file).then(function(data){
     cs[fKey]=data;
     var el=document.getElementById('dzsm-'+dzId);if(el)el.classList.add('ok');
-    var h=document.getElementById('dzsm-hint-'+dzId);if(h)h.textContent=file.name;
+    var h=document.getElementById('dzsm-hint-'+dzId);if(h)h.textContent=file.name+' ('+Object.keys(data).length+' queries)';
+  }).catch(function(err){
+    console.warn('SQP parse error:',err);
+    var h=document.getElementById('dzsm-hint-'+dzId);
+    if(h)h.textContent='Error: '+((err&&err.message)||'Could not parse file');
   });
 }
 
@@ -1782,21 +2750,31 @@ function showErr(msg){
 }
 
 function resetApp(){
-  FILES={str:null,camp:null};
-  PARSED={str:null,camp:null};
+  var allKeys=['str','camp','product','placement','reach','inventory','geo','audience'];
+  var emptyFiles={};var emptyParsed={};
+  allKeys.forEach(function(k){emptyFiles[k]=null;emptyParsed[k]=null;});
+  FILES=emptyFiles;PARSED=emptyParsed;
   STR_BY_BRAND={};CAMP_BY_BRAND={};SP_STR_BY_BRAND={};
+  PRODUCT_BY_BRAND={};PLACEMENT_BY_BRAND={};REACH_BY_BRAND={};
+  INVENTORY_BY_BRAND={};GEO_BY_BRAND={};AUDIENCE_BY_BRAND={};
+  CONVERTED_BY_BRAND={};TARGETING_BY_BRAND={};STRIS_BY_BRAND={};TOSIS_BY_BRAND={};
   BRAND_DATA={};ACTIVE_BRAND=null;ACTIVE_SEC={};CALLOUT_STATE={};
+  DSP_SUBTAB={};GEO_FILTER={};PROD_SUBTAB={};TGT_SUBTAB={};IS_SUBTAB={};
   document.getElementById('main-content').style.display='none';
   document.getElementById('reset-btn').style.display='none';
   document.getElementById('parsed-status').innerHTML='';
   document.getElementById('parse-status').innerHTML='';
-  ['dz-str','dz-camp'].forEach(function(id){
-    var el=document.getElementById(id);if(el)el.classList.remove('ok');
-  });
-  var hintDefaults={str:'All brands · CSV or XLSX',camp:'All brands · CSV or XLSX'};
-  ['hint-str','hint-camp'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(el)el.textContent=hintDefaults[id.replace('hint-','')]||'';
+  var dzIds=['dz-str','dz-camp','dz-product','dz-placement','dz-reach','dz-inventory','dz-geo','dz-audience','dz-converted','dz-targeting','dz-stris','dz-tosis'];
+  dzIds.forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('ok');});
+  var hintDefaults={
+    str:'All brands · CSV or XLSX',camp:'All brands · CSV or XLSX',
+    product:'PPC · all brands',placement:'PPC · all brands',reach:'DSP · all brands',
+    inventory:'DSP · all brands',geo:'DSP · all brands',audience:'DSP · all brands',
+    converted:'PPC · all brands',targeting:'PPC · all brands',
+    stris:'SP/SB · all brands',tosis:'SP/SB · all brands'
+  };
+  Object.entries(hintDefaults).forEach(function(e){
+    var el=document.getElementById('hint-'+e[0]);if(el)el.textContent=e[1];
   });
   document.getElementById('parse-btn').disabled=true;
 }
