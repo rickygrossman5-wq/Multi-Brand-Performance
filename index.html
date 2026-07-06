@@ -960,7 +960,7 @@ function renderAllCallouts(){
     '</div>'+
     (hasContent?'<div style="display:flex;gap:8px">'+
       '<button class="btn-secondary" id="all-callouts-copy-btn" onclick="copyAllCallouts()">Copy all</button>'+
-      '<button class="btn-primary" onclick="downloadAllCallouts()">Download .txt</button>'+
+      '<button class="btn-primary" onclick="downloadAllCallouts()">Download PDF</button>'+
     '</div>':'') +
   '</div>'+
   (hasContent?
@@ -980,12 +980,76 @@ function downloadAllCallouts(){
   if(!el)return;
   var text=el.textContent;
   var mn=new Date().toISOString().slice(0,7);
-  var blob=new Blob([text],{type:'text/plain'});
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='PLTFRM_Monthly_Callouts_'+mn+'.txt';
-  a.click();
-  URL.revokeObjectURL(a.href);
+
+  // Build a clean print-ready HTML document
+  var brands=Object.keys(BRAND_DATA).sort();
+  var sections='';
+  brands.forEach(function(b){
+    var cs=CALLOUT_STATE[b];
+    if(!cs||!cs.output||!cs.output.trim())return;
+    var brandLabel=(BRAND_SHORT[b]||b);
+    var month=cs.month>=0?MNS[cs.month]+' '+(cs.year||new Date().getFullYear()):'';
+    // Convert plain text callout to HTML — preserve sections and bullets
+    var lines=cs.output.split('\n');
+    var html='';
+    lines.forEach(function(line){
+      var trimmed=line.trim();
+      if(trimmed.startsWith('====')&&trimmed.endsWith('====')){
+        var heading=trimmed.replace(/^=+\s*/,'').replace(/\s*=+$/,'');
+        html+='<h3>'+esc(heading)+'</h3>';
+      } else if(trimmed.startsWith('* ')){
+        html+='<li>'+esc(trimmed.slice(2))+'</li>';
+      } else if(trimmed.startsWith('- ')){
+        html+='<li>'+esc(trimmed.slice(2))+'</li>';
+      } else if(trimmed===''){
+        html+='<br>';
+      } else {
+        html+='<p>'+esc(trimmed)+'</p>';
+      }
+    });
+    sections+='<div class="brand-section">'+
+      '<div class="brand-header">'+
+        '<div class="brand-name">'+esc(brandLabel)+'</div>'+
+        (month?'<div class="brand-month">'+esc(month)+'</div>':'')+
+      '</div>'+
+      '<div class="brand-body">'+html+'</div>'+
+    '</div>';
+  });
+
+  var doc='<!DOCTYPE html><html><head><meta charset="UTF-8">'+
+    '<title>PLTFRM Monthly Callouts — '+esc(mn)+'</title>'+
+    '<style>'+
+      '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap");'+
+      '*{margin:0;padding:0;box-sizing:border-box;}'+
+      'body{font-family:"Inter",sans-serif;font-size:11pt;color:#111;background:#fff;padding:0;}'+
+      '.cover{display:flex;flex-direction:column;justify-content:flex-end;padding:60px 56px;min-height:100vh;background:#0C0C0A;page-break-after:always;}'+
+      '.cover-label{font-family:"DM Mono",monospace;font-size:9pt;color:#3ECF74;letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px;}'+
+      '.cover-title{font-size:32pt;font-weight:700;color:#fff;line-height:1.15;margin-bottom:12px;}'+
+      '.cover-sub{font-family:"DM Mono",monospace;font-size:10pt;color:#888;}'+
+      '.brand-section{padding:48px 56px;page-break-after:always;min-height:100vh;}'+
+      '.brand-header{border-bottom:2px solid #0C0C0A;padding-bottom:16px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:baseline;}'+
+      '.brand-name{font-size:22pt;font-weight:700;color:#0C0C0A;}'+
+      '.brand-month{font-family:"DM Mono",monospace;font-size:9pt;color:#888;}'+
+      'h3{font-family:"DM Mono",monospace;font-size:7.5pt;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#888;margin:22px 0 10px;padding-bottom:5px;border-bottom:1px solid #e5e5e5;}'+
+      'p{font-size:10.5pt;line-height:1.65;color:#1a1a1a;margin-bottom:6px;}'+
+      'li{font-size:10.5pt;line-height:1.65;color:#1a1a1a;margin-left:18px;margin-bottom:4px;list-style:disc;}'+
+      'br{display:block;margin:4px 0;}'+
+      '@media print{@page{margin:0;size:A4;}.cover{min-height:100vh;}.brand-section{min-height:100vh;}}'+
+    '</style>'+
+    '</head><body>'+
+    '<div class="cover">'+
+      '<div class="cover-label">PLTFRM Internal</div>'+
+      '<div class="cover-title">Monthly Brand<br>Callouts</div>'+
+      '<div class="cover-sub">'+esc(mn)+' &nbsp;&nbsp;·&nbsp;&nbsp; '+Object.keys(BRAND_DATA).filter(function(b){return CALLOUT_STATE[b]&&CALLOUT_STATE[b].output;}).length+' brands</div>'+
+    '</div>'+
+    sections+
+    '</body></html>';
+
+  // Open in new window and trigger print-to-PDF
+  var win=window.open('','_blank');
+  win.document.write(doc);
+  win.document.close();
+  win.onload=function(){win.focus();win.print();};
 }
 
 function selectBrand(brand){
@@ -1635,7 +1699,7 @@ function dzSm(dzId,fileKey,lbl,brand){
   var fKey=fileKey==='sqp-prev'?'sqpPrevLocal':'sqpCurrLocal';
   var hasFile=!!(csb[fKey]);
   return'<div class="dz-sm'+(hasFile?' ok':'')+'" id="dzsm-'+dzId+'">'+
-    '<input type="file" accept=".csv,.tsv,.txt" onchange="handleSQPLocal(event,\''+fileKey+'\',\''+dzId+'\',\''+brand.replace(/'/g,"\\'")+'\')">'+
+    '<input type="file" accept=".csv,.tsv,.txt" data-sqp-key="'+esc(fileKey)+'" data-sqp-dz="'+esc(dzId)+'" data-sqp-brand="'+esc(brand)+'">'+
     '<div><div class="dz-sm-label">'+esc(lbl)+'</div><div class="dz-sm-hint" id="dzsm-hint-'+dzId+'">'+(hasFile?esc(csb[fKey+'Name']||'Loaded'):'CSV · click to upload')+'</div></div>'+
   '</div>';
 }
@@ -1710,7 +1774,15 @@ function bindCallout(brand){
     });
   });
 
-  // Bullet lists
+  // SQP file inputs — bound via data attributes to avoid inline handler escaping issues
+  document.querySelectorAll('input[data-sqp-brand]').forEach(function(inp){
+    inp.addEventListener('change',function(e){
+      var fileKey=inp.dataset.sqpKey;
+      var dzId=inp.dataset.sqpDz;
+      var b=inp.dataset.sqpBrand;
+      handleSQPLocal(e,fileKey,dzId,b);
+    });
+  });
   document.querySelectorAll('.bullet-input').forEach(function(inp){
     inp.addEventListener('input',function(){
       var bl=inp.dataset.bl,idx=parseInt(inp.dataset.idx);
