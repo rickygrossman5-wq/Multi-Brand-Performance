@@ -997,9 +997,13 @@ function downloadAllCallouts(){
       if(trimmed.startsWith('====')&&trimmed.endsWith('====')){
         var heading=trimmed.replace(/^=+\s*/,'').replace(/\s*=+$/,'');
         html+='<h3>'+esc(heading)+'</h3>';
+      } else if(line.match(/^      /) && !trimmed.startsWith('*')){
+        // 6-space indented sub-value line (spend breakdown percentages, last month data)
+        html+='<div class="sub-line">'+esc(trimmed)+'</div>';
+      } else if(trimmed.startsWith('   * ')){
+        // 3-space indented sub-bullet
+        html+='<div class="sub-line">'+esc(trimmed.slice(5))+'</div>';
       } else if(trimmed.startsWith('* ')){
-        html+='<li>'+esc(trimmed.slice(2))+'</li>';
-      } else if(trimmed.startsWith('- ')){
         html+='<li>'+esc(trimmed.slice(2))+'</li>';
       } else if(trimmed===''){
         html+='<br>';
@@ -1034,6 +1038,7 @@ function downloadAllCallouts(){
       'h3{font-family:"DM Mono",monospace;font-size:7.5pt;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#888;margin:22px 0 10px;padding-bottom:5px;border-bottom:1px solid #e5e5e5;}'+
       'p{font-size:10.5pt;line-height:1.65;color:#1a1a1a;margin-bottom:6px;}'+
       'li{font-size:10.5pt;line-height:1.65;color:#1a1a1a;margin-left:18px;margin-bottom:4px;list-style:disc;}'+
+      '.sub-line{font-size:10pt;line-height:1.6;color:#444;margin-left:32px;margin-bottom:3px;font-family:"DM Mono",monospace;}'+
       'br{display:block;margin:4px 0;}'+
       '@media print{@page{margin:0;size:A4;}.cover{min-height:100vh;}.brand-section{min-height:100vh;}}'+
       '.chart-image{margin-top:32px;padding-top:20px;border-top:1px solid #e5e5e5;}'+
@@ -1728,7 +1733,6 @@ function handleSPSTRUpload(e, brand){
   var dzId='spstr-dz-'+CSS.escape(brand);
   var hintId='spstr-hint-'+CSS.escape(brand);
   parseCSVorXLSX(file).then(function(rows){
-    // Build a map: campaign+searchTerm → targeting sub-type
     var tgMap={};
     rows.forEach(function(r){
       var camp=String(r['Campaign Name']||r['Campaign name']||'').trim().toLowerCase();
@@ -1738,11 +1742,8 @@ function handleSPSTRUpload(e, brand){
       if(tg&&!tgMap[key])tgMap[key]=tg;
     });
     SP_STR_BY_BRAND[brand]=tgMap;
-    // Recompute this brand's data with enriched targeting
     BRAND_DATA[brand]=computeBrand(brand,'Advertiser account name');
-    // Update UI if this brand is active
     if(ACTIVE_BRAND===brand)renderBrandContent(brand);
-    // Update drop zone
     var dz=document.getElementById(dzId);if(dz)dz.classList.add('ok');
     var hint=document.getElementById(hintId);if(hint)hint.textContent=file.name;
   }).catch(function(err){console.warn('SP STR parse error',err);});
@@ -1881,8 +1882,8 @@ async function generateCallout(brand){
       var pp=[];
       if(prev.imp!==null)pp.push('Impression Share: '+prev.imp.toFixed(2)+'%');
       if(prev.pur!==null)pp.push('Purchase Share: '+prev.pur.toFixed(2)+'%');
-      if(pp.length)prevLine='   * Last Month: '+pp.join(' | ');
-    }else{prevLine='   * Last Month:';}
+      if(pp.length)prevLine='      Last Month: '+pp.join(' | ');
+    }else{prevLine='      Last Month:';}
     return'* '+line+'\n'+prevLine;
   }
 
@@ -1908,25 +1909,25 @@ async function generateCallout(brand){
 
   out+='==== SPEND BREAKDOWN ====\n';
   out+='* Branded vs. Non-branded\n';
-  out+='   * Branded: '+P(bSpend,totalPPCSpend)+'\n';
-  out+='   * Non-branded: '+P(nbSpend,totalPPCSpend)+'\n';
+  out+='      Branded:       '+P(bSpend,totalPPCSpend)+'\n';
+  out+='      Non-branded:   '+P(nbSpend,totalPPCSpend)+'\n';
   out+='* Product/Category Targeting vs. Keyword Targeting\n';
-  out+='   * Product/Category: '+P(m.patSpend,pkTotal)+'\n';
-  out+='   * Keyword: '+P(m.kwSpend,pkTotal)+'\n';
+  out+='      PAT / CAT:     '+P(m.patSpend,pkTotal)+'\n';
+  out+='      Keyword:       '+P(m.kwSpend,pkTotal)+'\n';
   if(m.hasRealMT&&m.mtTotal>0){
     out+='* Match Type\n';
-    out+='   * Exact: '+P(m.exactSpend,m.mtTotal)+'\n';
-    out+='   * Phrase: '+P(m.phraseSpend,m.mtTotal)+'\n';
-    out+='   * Broad: '+P(m.broadSpend,m.mtTotal)+'\n';
+    out+='      Exact:         '+P(m.exactSpend,m.mtTotal)+'\n';
+    out+='      Phrase:        '+P(m.phraseSpend,m.mtTotal)+'\n';
+    out+='      Broad:         '+P(m.broadSpend,m.mtTotal)+'\n';
   }
-  out+='* Auto Campaign vs Manual Campaign\n';
-  out+='   * Auto: '+P(m.autoSpend,totalPPCSpend)+'\n';
-  out+='   * Manual: '+P(m.manualSpend,totalPPCSpend)+'\n';
+  out+='* Auto vs. Manual Campaign\n';
+  out+='      Auto:          '+P(m.autoSpend,totalPPCSpend)+'\n';
+  out+='      Manual:        '+P(m.manualSpend,totalPPCSpend)+'\n';
   if(dspVal>0){
     var totalAll=totalPPCSpend+dspVal;
-    out+='* DSP vs PPC\n';
-    out+='   * DSP: '+P(dspVal,totalAll)+'\n';
-    out+='   * PPC: '+P(totalPPCSpend,totalAll)+'\n';
+    out+='* DSP vs. PPC\n';
+    out+='      DSP:           '+P(dspVal,totalAll)+'\n';
+    out+='      PPC:           '+P(totalPPCSpend,totalAll)+'\n';
   }
 
   out+='==== TOP NON-BRANDED CAMPAIGNS ====\n';
@@ -1935,9 +1936,34 @@ async function generateCallout(brand){
   out+='==== WORST NON-BRANDED CAMPAIGNS ====\n';
   m.worstNB.forEach(function(c){out+='* '+c.name+': ROAS '+c.roas.toFixed(2)+' | Spend: '+fmt$(c.spend)+'\n';});
 
+  if(cs.month>=0){
+    var campRows=CAMP_BY_BRAND[brand]||[];
+    var r0camp=campRows[0]||{};
+    var startDateCol=getCol(r0camp,['campaign start date']);
+    var campNameCol=getCol(r0camp,['campaign name']);
+    if(startDateCol&&campNameCol){
+      var targetYear=cs.year||new Date().getFullYear();
+      var monthStart=new Date(targetYear,cs.month,1);
+      var monthEnd=new Date(targetYear,cs.month+1,0,23,59,59);
+      var seen=new Set();var newCamps=[];
+      campRows.forEach(function(r){
+        var name=String(r[campNameCol]||'').trim();
+        if(!name||seen.has(name))return;
+        seen.add(name);
+        var adProd=String(r['Ad product']||r['Ad Product']||'').toLowerCase();
+        if(adProd.includes('dsp'))return;
+        var startDt=new Date(String(r[startDateCol]||'').trim());
+        if(isNaN(startDt)||startDt<monthStart||startDt>monthEnd)return;
+        newCamps.push(name);
+      });
+      if(newCamps.length>0){
+        out+='==== NEW CAMPAIGNS LAUNCHED THIS MONTH ====\n';
+        newCamps.forEach(function(name){out+='* '+name+'\n';});
+      }
+    }
+  }
+
   out+='==== STRATEGIC ACTION ITEMS FOR NEXT MONTH ====\n';
-  var ab=cs.actionItems.filter(function(b){return b.trim();});
-  if(ab.length===0)out+='* N/A\n';else ab.forEach(function(b){out+='* '+b.trim()+'\n';});
 
   cs.output=out.trim();
   cs.loading=false;
@@ -1948,7 +1974,8 @@ function hlCallout(text){
   return esc(text)
     .replace(/(====.*?====)/g,'<span class="sh">$1</span>')
     .replace(/(^\* )/gm,'<span class="bl">* </span>')
-    .replace(/(^   \* )/gm,'<span class="sb">   * </span>');
+    .replace(/(^   \* )/gm,'<span class="sb">   * </span>')
+    .replace(/^(      \S)/gm,'<span class="sb">      </span>$1');
 }
 
 function copyCallout(brand){
