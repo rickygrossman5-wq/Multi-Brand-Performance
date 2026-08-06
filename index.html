@@ -1720,8 +1720,9 @@ function renderCallout(brand,m){
     '<div><label class="cf-label">Strategic Action Items for Next Month</label>'+bl('action',cs.actionItems)+'</div>'+
     imgZone+
     '<div style="display:flex;gap:10px;align-items:center;margin-top:4px">'+
-      '<button class="btn-primary" id="gen-btn-'+CSS.escape(brand)+'" onclick="generateCallout(\''+brand.replace(/'/g,"\\'")+'\')">'+
-      (cs.loading?'<span class="spin"></span>Generating...':'Generate Callout')+'</button>'+
+      '<button class="btn-primary" id="gen-btn-'+CSS.escape(brand)+'" data-gen-brand="'+esc(brand)+'"'+(cs.loading?' disabled style="opacity:.6;cursor:not-allowed"':'')+'>'+
+      (cs.loading?'<span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:6px"></span>Generating...':'Generate Callout')+'</button>'+
+      (cs.loading?'<span style="font-size:11px;font-family:var(--mono);color:var(--gray-dim)">This takes a few seconds...</span>':'')+
     '</div>'+
     (cs.error?'<div class="err">'+esc(cs.error)+'</div>':'')+
   '</div>'+output;
@@ -1789,9 +1790,10 @@ function handleSQPLocal(e,fileKey,dzId,brand){
 
 function bindCallout(brand){
   var cs=CALLOUT_STATE[brand];
+  var root=document.getElementById('section-body')||document;
 
   // Input fields
-  document.querySelectorAll('[data-cf]').forEach(function(el){
+  root.querySelectorAll('[data-cf]').forEach(function(el){
     el.addEventListener('change',function(){
       var key=el.dataset.cf;
       if(key==='month')cs.month=parseInt(el.value);
@@ -1804,7 +1806,7 @@ function bindCallout(brand){
   });
 
   // Image upload
-  document.querySelectorAll('input[data-img-brand]').forEach(function(inp){
+  root.querySelectorAll('input[data-img-brand]').forEach(function(inp){
     inp.addEventListener('change',function(e){
       var file=e.target.files[0];if(!file)return;
       var b=inp.dataset.imgBrand;
@@ -1818,7 +1820,7 @@ function bindCallout(brand){
       reader.readAsDataURL(file);
     });
   });
-  document.querySelectorAll('input[data-sqp-brand]').forEach(function(inp){
+  root.querySelectorAll('input[data-sqp-brand]').forEach(function(inp){
     inp.addEventListener('change',function(e){
       var fileKey=inp.dataset.sqpKey;
       var dzId=inp.dataset.sqpDz;
@@ -1826,7 +1828,15 @@ function bindCallout(brand){
       handleSQPLocal(e,fileKey,dzId,b);
     });
   });
-  document.querySelectorAll('.bullet-input').forEach(function(inp){
+  // Generate button
+  var genBtn=root.querySelector('[data-gen-brand]');
+  if(genBtn){
+    genBtn.addEventListener('click',function(){
+      generateCallout(genBtn.dataset.genBrand);
+    });
+  }
+
+  root.querySelectorAll('.bullet-input').forEach(function(inp){
     inp.addEventListener('input',function(){
       var bl=inp.dataset.bl,idx=parseInt(inp.dataset.idx);
       var arr=bl==='core'?cs.coreItems:cs.actionItems;
@@ -1836,24 +1846,24 @@ function bindCallout(brand){
       var bl=inp.dataset.bl,idx=parseInt(inp.dataset.idx);
       var arr=bl==='core'?cs.coreItems:cs.actionItems;
       if(e.key==='Enter'){e.preventDefault();arr.splice(idx+1,0,'');renderBrandContent(brand);
-        setTimeout(function(){var rows=document.querySelectorAll('[data-bl="'+bl+'"].bullet-input');if(rows[idx+1])rows[idx+1].focus();},0);}
+        setTimeout(function(){var rows=root.querySelectorAll('[data-bl="'+bl+'"].bullet-input');if(rows[idx+1])rows[idx+1].focus();},0);}
       if(e.key==='Backspace'&&inp.value===''&&arr.length>1){e.preventDefault();arr.splice(idx,1);renderBrandContent(brand);
-        setTimeout(function(){var rows=document.querySelectorAll('[data-bl="'+bl+'"].bullet-input');if(rows[Math.max(0,idx-1)])rows[Math.max(0,idx-1)].focus();},0);}
+        setTimeout(function(){var rows=root.querySelectorAll('[data-bl="'+bl+'"].bullet-input');if(rows[Math.max(0,idx-1)])rows[Math.max(0,idx-1)].focus();},0);}
     });
   });
-  document.querySelectorAll('.bullet-del').forEach(function(btn){
+  root.querySelectorAll('.bullet-del').forEach(function(btn){
     btn.addEventListener('click',function(){
       var bl=btn.dataset.bl,idx=parseInt(btn.dataset.idx);
       var arr=bl==='core'?cs.coreItems:cs.actionItems;
       if(arr.length>1){arr.splice(idx,1);renderBrandContent(brand);}
     });
   });
-  document.querySelectorAll('.add-bullet').forEach(function(btn){
+  root.querySelectorAll('.add-bullet').forEach(function(btn){
     btn.addEventListener('click',function(){
       var bl=btn.dataset.bl;
       if(bl==='core')cs.coreItems.push('');else cs.actionItems.push('');
       renderBrandContent(brand);
-      setTimeout(function(){var rows=document.querySelectorAll('[data-bl="'+bl+'"].bullet-input');if(rows.length)rows[rows.length-1].focus();},0);
+      setTimeout(function(){var rows=root.querySelectorAll('[data-bl="'+bl+'"].bullet-input');if(rows.length)rows[rows.length-1].focus();},0);
     });
   });
 }
@@ -1963,16 +1973,21 @@ async function generateCallout(brand){
         if(adProd.includes('dsp'))return;
         var startDt=new Date(String(r[startDateCol]||'').trim());
         if(isNaN(startDt)||startDt<monthStart||startDt>monthEnd)return;
-        newCamps.push(name);
+        newCamps.push({name,spend:num(r['Total cost']),roas:parseFloat(r['ROAS'])||0});
       });
       if(newCamps.length>0){
         out+='==== NEW CAMPAIGNS LAUNCHED THIS MONTH ====\n';
-        newCamps.forEach(function(name){out+='* '+name+'\n';});
+        newCamps.forEach(function(c){
+          out+='* '+c.name+'\n';
+          out+='      Spend: '+fmt$(c.spend)+' | ROAS: '+(c.roas>0?c.roas.toFixed(2)+'x':'—')+'\n';
+        });
       }
     }
   }
 
   out+='==== STRATEGIC ACTION ITEMS FOR NEXT MONTH ====\n';
+  var ab=cs.actionItems.filter(function(b){return b.trim();});
+  if(ab.length===0)out+='* N/A\n';else ab.forEach(function(b){out+='* '+b.trim()+'\n';});
 
   cs.output=out.trim();
   cs.loading=false;
