@@ -543,6 +543,12 @@ function computeBrand(brand,brandCol){
 
   var dspSpend=dspRows.reduce(function(s,r){return s+num(r[cSpend]);},0);
   var dspSales=dspRows.reduce(function(s,r){return s+num(r[cSales]);},0);
+  var dspPurch=dspRows.reduce(function(s,r){return s+num(r[cPurchases]);},0);
+  var dspROAS=dspSpend>0?dspSales/dspSpend:0;
+  var dspCampaigns=dspRows.map(function(r){
+    var sp=num(r[cSpend]),sa=num(r[cSales]),pu=num(r[cPurchases]);
+    return{name:String(r[cName]||''),sp,sa,pu,roas:sp>0?sa/sp:0};
+  }).filter(function(c){return c.sp>0;}).sort(function(a,b){return b.sp-a.sp;});
 
   // PPC aggregates
   function campMetrics(rows){
@@ -874,7 +880,7 @@ function computeBrand(brand,brandCol){
 
   // ── Supplemental report data ──
   return{
-    totalPPCSpend,totalPPCSales,dspSpend,dspSales,totalSpend,totalSales,
+    totalPPCSpend,totalPPCSales,dspSpend,dspSales,dspPurch,dspROAS,dspCampaigns,totalSpend,totalSales,
     bSpend,nbSpend,nbSales,autoSpend,manualSpend,avgNBROAS,
     topNB,worstNB,
     patSpend,kwSpend,pkTotal,exactSpend,phraseSpend,broadSpend,manualOtherSpend,mtTotal,hasRealMT,
@@ -1124,11 +1130,13 @@ function renderOverview(brand,m){
     mc('Auto Spend',fmt$(m.autoSpend),pS(m.autoSpend,m.totalPPCSpend)+' of PPC')+
   '</div>';
   // DSP if present
-  var dspRow=m.dspSpend>0?'<div class="g2" style="margin-bottom:18px">'+
+  var dspRow=m.dspSpend>0?'<div class="g4" style="margin-bottom:18px">'+
     mc('DSP Spend',fmt$(m.dspSpend),'')+
-    mc('DSP Sales',fmt$(m.dspSales),fmtX(m.dspSpend>0?m.dspSales/m.dspSpend:0)+' ROAS')+
+    mc('DSP Sales',fmt$(m.dspSales),fmtX(m.dspROAS)+' ROAS')+
+    mc('DSP Purchases',m.dspPurch+' orders',m.dspPurch>0?fmt$(m.dspSpend/m.dspPurch)+' CPA':'')+
+    mc('DSP Campaigns',m.dspCampaigns.length+' active','')+
   '</div>':'';
-  // Spend breakdown — grouped for easy comparison
+
   function spendGroup(title, items){
     var groupTotal=items.reduce(function(s,r){return s+r.v;},0)||1;
     return'<div style="margin-bottom:22px">'+
@@ -1711,7 +1719,7 @@ function renderCallout(brand,m){
       fi('forecastRevenue','Forecasted Revenue',cs.forecastRevenue,'e.g. $347,697')+
       fi('actualRevenue','Actual Revenue',cs.actualRevenue,'e.g. $211,786')+
     '</div>'+
-    fi('dsp','DSP Spend (if any)',cs.dsp,'Leave blank if none')+
+    fi('dsp','DSP Spend (auto-filled if available)',cs.dsp||fmt$(m.dspSpend),'Leave blank if none')+
     '<div><label class="cf-label">Core Strategies for the Month</label>'+bl('core',cs.coreItems)+'</div>'+
     '<div class="sqp-inline-grid">'+
       dzSm('sqp-prev-'+CSS.escape(brand),'sqp-prev','SQP — Previous Month (optional)',brand)+
@@ -1883,6 +1891,9 @@ async function generateCallout(brand){
 
   var calLabel=MNS[cs.month]+' '+cs.year;
   var dspVal=parseFloat(String(cs.dsp||'').replace(/[^0-9.]/g,''))||m.dspSpend;
+  var dspSales=m.dspSales;
+  var dspROAS=m.dspROAS;
+  var dspPurch=m.dspPurch;
 
   // Build top terms with SQP data
   function termLine(t){
@@ -1947,6 +1958,20 @@ async function generateCallout(brand){
     out+='* DSP vs. PPC\n';
     out+='      DSP:           '+P(dspVal,totalAll)+'\n';
     out+='      PPC:           '+P(totalPPCSpend,totalAll)+'\n';
+  }
+
+  if(dspVal>0){
+    out+='==== DSP PERFORMANCE ====\n';
+    out+='* Total DSP Spend: '+fmt$(dspVal)+'\n';
+    out+='* Total DSP Sales: '+fmt$(dspSales)+'\n';
+    out+='* DSP ROAS: '+(dspROAS>0?dspROAS.toFixed(2)+'x':'—')+'\n';
+    out+='* DSP Purchases: '+dspPurch+'\n';
+    if(m.dspCampaigns&&m.dspCampaigns.length>0){
+      out+='* Campaigns:\n';
+      m.dspCampaigns.forEach(function(c){
+        out+='      '+c.name+' — '+fmt$(c.sp)+' | ROAS: '+(c.roas>0?c.roas.toFixed(2)+'x':'—')+'\n';
+      });
+    }
   }
 
   out+='==== TOP NON-BRANDED CAMPAIGNS ====\n';
