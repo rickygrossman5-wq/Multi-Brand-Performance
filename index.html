@@ -180,8 +180,9 @@ body{font-family:var(--sans);background:var(--black);color:var(--white);min-heig
   <div>
     <div class="app-title">PLTFRM / Multi-Brand Monthly Analyzer</div>
   </div>
-  <div style="display:flex;gap:8px">
+  <div style="display:flex;gap:8px;align-items:center">
     <button class="btn-secondary" id="reset-btn" style="display:none" onclick="resetApp()">Reset</button>
+    <button class="btn-secondary" id="checkin-btn" style="display:none" onclick="toggleCheckin()">Check-in Mode</button>
     <button class="btn-secondary" id="config-btn" onclick="toggleConfig()">Config</button>
   </div>
 </div>
@@ -233,7 +234,184 @@ body{font-family:var(--sans);background:var(--black);color:var(--white);min-heig
 </div><!-- /container -->
 
 <script>
+var CHECKIN_MODE=false;
+
+function toggleCheckin(){
+  CHECKIN_MODE=!CHECKIN_MODE;
+  var btn=document.getElementById('checkin-btn');
+  if(btn){
+    btn.textContent=CHECKIN_MODE?'← Back to Callouts':'Check-in Mode';
+    btn.style.color=CHECKIN_MODE?'var(--amber)':'';
+    btn.style.borderColor=CHECKIN_MODE?'rgba(232,200,64,.4)':'';
+  }
+  if(CHECKIN_MODE){
+    renderCheckinMode();
+  } else {
+    var brandNav=document.getElementById('brand-nav');
+    if(brandNav)brandNav.style.display='';
+    if(ACTIVE_BRAND)renderBrandContent(ACTIVE_BRAND);
+  }
+}
+
 var MNS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function miniBar(label,v,total,color){
+  var pct=total>0?Math.min(v/total*100,100):0;
+  return'<div style="margin-bottom:8px">'+
+    '<div style="display:flex;justify-content:space-between;margin-bottom:3px">'+
+      '<span style="font-size:11px;color:var(--gray)">'+esc(label)+'</span>'+
+      '<span style="font-family:var(--mono);font-size:10px;color:var(--white)">'+pct.toFixed(1)+'%</span>'+
+    '</div>'+
+    '<div style="height:4px;background:var(--line);border-radius:2px">'+
+      '<div style="height:4px;width:'+pct.toFixed(1)+'%;background:'+color+';border-radius:2px"></div>'+
+    '</div>'+
+  '</div>';
+}
+
+function ciCard(label,val,color){
+  return'<div style="background:var(--ink);border-radius:8px;padding:12px 14px;border:1px solid var(--line)">'+
+    '<div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-dim);margin-bottom:6px">'+esc(label)+'</div>'+
+    '<div style="font-size:16px;font-weight:700;font-family:var(--sans);color:'+color+'">'+val+'</div>'+
+  '</div>';
+}
+
+function campMiniTable(camps){
+  if(!camps||!camps.length)return'<div style="font-size:11px;color:var(--gray-dim)">—</div>';
+  return'<table class="tbl"><thead><tr><th>Campaign</th><th class="num">ROAS</th><th class="num">Spend</th></tr></thead><tbody>'+
+    camps.map(function(c){
+      var rc=c.roas>=3?'var(--green)':c.roas>=1?'var(--white)':'var(--red)';
+      var nameShort=c.name.length>40?c.name.slice(0,40)+'…':c.name;
+      return'<tr>'+
+        '<td style="font-size:10px;color:var(--gray)">'+esc(nameShort)+'</td>'+
+        '<td class="num" style="color:'+rc+';font-weight:500">'+fmtX(c.roas)+'</td>'+
+        '<td class="num">'+fmt$(c.spend)+'</td>'+
+      '</tr>';
+    }).join('')+'</tbody></table>';
+}
+
+function renderCheckinMode(){
+  var brands=Object.keys(BRAND_DATA).sort();
+  var brandNav=document.getElementById('brand-nav');
+  var content=document.getElementById('brand-content');
+  if(brandNav)brandNav.style.display='none';
+
+  var html='<div style="margin-bottom:20px;display:flex;align-items:baseline;gap:12px">'+
+    '<div style="font-size:15px;font-weight:700;color:var(--white);font-family:var(--sans)">Mid-Month Check-in</div>'+
+    '<div style="font-size:11px;color:var(--gray-dim);font-family:var(--mono)">Report metrics only · all brands</div>'+
+  '</div>';
+
+  brands.forEach(function(brand){
+    var m=BRAND_DATA[brand];
+    var roas=m.totalPPCSpend>0?m.totalPPCSales/m.totalPPCSpend:0;
+    var roasC=roas>=4?'var(--green)':roas>=2?'var(--white)':roas>=1?'var(--amber)':'var(--red)';
+    var nbROASC=m.avgNBROAS>=4?'var(--green)':m.avgNBROAS>=2?'var(--white)':m.avgNBROAS>=1?'var(--amber)':'var(--red)';
+    var autoC=m.autoNBROAS>=4?'var(--green)':m.autoNBROAS>=2?'var(--white)':m.autoNBROAS>=1?'var(--amber)':'var(--red)';
+    var wasteC=m.wastedPct>0.25?'var(--red)':m.wastedPct>0.1?'var(--amber)':'var(--green)';
+
+    // Placement table
+    var plcHTML='';
+    if(m.placementTable){
+      var pt=m.placementTable;
+      plcHTML='<div style="margin-top:18px">'+
+        '<div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-dim);margin-bottom:8px">Placement Breakdown (Non-Branded)</div>'+
+        '<table class="tbl"><thead><tr><th>Placement</th><th class="num">Spend</th><th class="num">% Sp</th><th class="num">CPC</th><th class="num">CVR</th><th class="num">ROAS</th></tr></thead><tbody>'+
+        pt.placements.map(function(p){
+          var rc=p.roas>=2?'var(--green)':p.roas>=1?'var(--white)':p.roas>0?'var(--amber)':'var(--red)';
+          return'<tr>'+
+            '<td style="font-size:11px">'+esc(p.label)+'</td>'+
+            '<td class="num">'+fmt$(p.sp)+'</td>'+
+            '<td class="num" style="color:var(--gray-dim)">'+p.pct.toFixed(1)+'%</td>'+
+            '<td class="num" style="color:var(--gray-dim)">$'+p.cpc.toFixed(2)+'</td>'+
+            '<td class="num">'+p.cvr.toFixed(1)+'%</td>'+
+            '<td class="num" style="color:'+rc+';font-weight:500">'+fmtX(p.roas)+'</td>'+
+          '</tr>';
+        }).join('')+
+        '<tr style="border-top:1px solid var(--line)">'+
+          '<td style="font-size:11px;font-weight:600;color:var(--white)">NB Total</td>'+
+          '<td class="num" style="font-weight:600">'+fmt$(pt.total.sp)+'</td>'+
+          '<td class="num" style="color:var(--gray-dim)">100%</td>'+
+          '<td class="num" style="color:var(--gray-dim)">$'+pt.total.cpc.toFixed(2)+'</td>'+
+          '<td class="num">'+pt.total.cvr.toFixed(1)+'%</td>'+
+          '<td class="num" style="color:'+(pt.total.roas>=2?'var(--green)':pt.total.roas>=1?'var(--white)':'var(--red)')+';font-weight:600">'+fmtX(pt.total.roas)+'</td>'+
+        '</tr>'+
+        '</tbody></table></div>';
+    }
+
+    // Spend breakdown
+    var totalSp=m.totalPPCSpend||1;
+    var breakdownHTML='<div style="margin-top:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px">'+
+      '<div><div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-dim);margin-bottom:8px">Branded vs NB</div>'+
+        miniBar('Branded',m.bSpend,totalSp,'var(--green)')+
+        miniBar('Non-Branded',m.nbSpend,totalSp,'var(--white)')+
+      '</div>'+
+      '<div><div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-dim);margin-bottom:8px">Auto vs Manual</div>'+
+        miniBar('Auto',m.autoSpend,totalSp,'var(--amber)')+
+        miniBar('Manual',m.manualSpend,totalSp,'var(--white)')+
+      '</div>'+
+      (m.hasRealMT&&m.mtTotal>0?
+      '<div><div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-dim);margin-bottom:8px">Match Type</div>'+
+        miniBar('Exact',m.exactSpend,m.mtTotal,'var(--white)')+
+        miniBar('Phrase',m.phraseSpend,m.mtTotal,'var(--gray)')+
+        miniBar('Broad',m.broadSpend,m.mtTotal,'var(--gray-dim)')+
+      '</div>':'<div></div>')+
+    '</div>';
+
+    html+='<div class="card" style="margin-bottom:20px">'+
+      // Brand header
+      '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--line)">'+
+        '<div style="font-size:15px;font-weight:700;color:var(--white);font-family:var(--sans)">'+esc(BRAND_SHORT[brand]||brand)+'</div>'+
+        '<div style="font-family:var(--mono);font-size:11px;color:var(--gray-dim)">'+fmt$(m.totalPPCSpend)+' PPC spend</div>'+
+      '</div>'+
+      // Core metrics
+      '<div class="g4">'+
+        ciCard('Total ROAS',fmtX(roas),roasC)+
+        ciCard('NB ROAS',fmtX(m.avgNBROAS),nbROASC)+
+        ciCard('Auto NB ROAS',m.autoNBSpend>0?fmtX(m.autoNBROAS):'—',autoC)+
+        ciCard('Wasted Spend',fmt$(m.totalWasted)+' · '+fmtPct(m.wastedPct),wasteC)+
+      '</div>'+
+      // DSP
+      (m.dspSpend>0?'<div class="g4" style="margin-top:12px">'+
+        ciCard('DSP Spend',fmt$(m.dspSpend),'var(--white)')+
+        ciCard('DSP Sales',fmt$(m.dspSales),'var(--white)')+
+        ciCard('DSP ROAS',fmtX(m.dspROAS),m.dspROAS>=2?'var(--green)':m.dspROAS>=1?'var(--amber)':'var(--red)')+
+        ciCard('DSP Purchases',m.dspPurch+' orders','var(--white)')+
+      '</div>':'')+
+      breakdownHTML+
+      plcHTML+
+      // Top/worst campaigns
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px">'+
+        '<div><div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-dim);margin-bottom:8px">Top NB Campaigns</div>'+campMiniTable(m.topNB)+'</div>'+
+        '<div><div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-dim);margin-bottom:8px">Worst NB Campaigns</div>'+campMiniTable(m.worstNB)+'</div>'+
+      '</div>'+
+      // Top spending search terms
+      (m.topTerms&&m.topTerms.length?
+      '<div style="margin-top:18px">'+
+        '<div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-dim);margin-bottom:8px">Top Spending Search Terms (Non-Branded)</div>'+
+        '<table class="tbl"><thead><tr>'+
+          '<th>Search Term</th>'+
+          '<th class="num">Spend</th>'+
+          '<th class="num">Orders</th>'+
+          '<th class="num">ROAS</th>'+
+          '<th class="num">CVR</th>'+
+        '</tr></thead><tbody>'+
+        m.topTerms.map(function(t){
+          var roas=t.sp>0?t.sa/t.sp:0;
+          var cvr=t.cl>0?t.pu/t.cl*100:0;
+          var rc=roas>=4?'var(--green)':roas>=2?'var(--white)':roas>=1?'var(--amber)':'var(--red)';
+          return'<tr>'+
+            '<td style="font-family:var(--mono);font-size:11px;color:var(--white)">'+esc(t.term)+'</td>'+
+            '<td class="num" style="font-weight:500">'+fmt$(t.sp)+'</td>'+
+            '<td class="num">'+t.pu+'</td>'+
+            '<td class="num" style="color:'+rc+';font-weight:500">'+fmtX(roas)+'</td>'+
+            '<td class="num" style="color:var(--gray-dim)">'+cvr.toFixed(1)+'%</td>'+
+          '</tr>';
+        }).join('')+
+        '</tbody></table>'+
+      '</div>':'')+'</div>';
+  });
+
+  content.innerHTML=html;
+}
 
 // ── Configuration ──
 var CFG={MIN_WASTED:5,MIN_OCC:2,LOW_ROAS:1.0,TOP_N:25};
@@ -526,6 +704,7 @@ async function processFiles(){
         renderBrandNav(brands);
         document.getElementById('main-content').style.display='';
         document.getElementById('reset-btn').style.display='';
+        document.getElementById('checkin-btn').style.display='';
         var uz=document.getElementById('upload-zone');
         uz.style.minHeight='0';
         uz.style.marginBottom='0';
@@ -1187,7 +1366,7 @@ function selectBrand(brand){
   document.querySelectorAll('.brand-tab').forEach(function(t){t.classList.remove('on');});
   var tab=document.getElementById('btab-'+CSS.escape(brand));
   if(tab)tab.classList.add('on');
-  if(!ACTIVE_SEC[brand])ACTIVE_SEC[brand]='overview';
+  if(!ACTIVE_SEC[brand])ACTIVE_SEC[brand]='callout';
   if(!CALLOUT_STATE[brand])CALLOUT_STATE[brand]={
     month:-1,year:new Date().getFullYear(),
     kpiTarget:'',kpiActual:'',forecastRevenue:'',actualRevenue:'',dsp:'',
@@ -1203,16 +1382,15 @@ function setSection(brand,sec){ACTIVE_SEC[brand]=sec;renderBrandContent(brand);}
 function renderBrandContent(brand){
   var m=BRAND_DATA[brand];var sec=ACTIVE_SEC[brand];
   var el=document.getElementById('brand-content');
-  var tabs=['overview','tokens','callout'];
-  var tabLabels={'overview':'Overview','tokens':'Token Analysis','callout':'Monthly Callout'};
+  var tabs=['callout','tokens'];
+  var tabLabels={'callout':'Monthly Callout','tokens':'Token Analysis'};
 
   var tabsHTML=tabs.map(function(t){
     return'<button class="stab'+(sec===t?' on':'')+'" onclick="setSection(\''+brand.replace(/'/g,"\\'")+'\',\''+t+'\')">'+tabLabels[t]+'</button>';
   }).join('');
   var bodyHTML='';
-  if(sec==='overview')bodyHTML=renderOverview(brand,m);
+  if(sec==='callout')bodyHTML=renderCallout(brand,m);
   else if(sec==='tokens')bodyHTML=renderTokens(brand,m);
-  else if(sec==='callout')bodyHTML=renderCallout(brand,m);
 
   el.innerHTML='<div class="section-tabs">'+tabsHTML+'</div><div id="section-body">'+bodyHTML+'</div>';
   if(sec==='callout')bindCallout(brand);
@@ -2187,8 +2365,10 @@ function resetApp(){
   PARSED={str:null,camp:null,placement:null};
   STR_BY_BRAND={};CAMP_BY_BRAND={};SP_STR_BY_BRAND={};PLACEMENT_BY_BRAND={};
   BRAND_DATA={};ACTIVE_BRAND=null;ACTIVE_SEC={};CALLOUT_STATE={};
+  CHECKIN_MODE=false;
   document.getElementById('main-content').style.display='none';
   document.getElementById('reset-btn').style.display='none';
+  document.getElementById('checkin-btn').style.display='none';
   document.getElementById('parsed-status').innerHTML='';
   document.getElementById('parse-status').innerHTML='';
   var el=document.getElementById('dz-str');if(el)el.classList.remove('ok');
