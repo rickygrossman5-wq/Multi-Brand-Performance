@@ -2297,7 +2297,7 @@ async function generateCallout(brand){
         if(adProd.includes('dsp'))return;
         var startDt=new Date(String(r[startDateCol]||'').trim());
         if(isNaN(startDt)||startDt<monthStart||startDt>monthEnd)return;
-        newCamps.push({name,spend:num(r['Total cost']),roas:parseFloat(r['ROAS'])||0});
+        newCamps.push({name,spend:num(r['Total cost']),sales:num(r['Sales']),roas:num(r['Total cost'])>0?num(r['Sales'])/num(r['Total cost']):0});
       });
       if(newCamps.length>0){
         out+='==== NEW CAMPAIGNS LAUNCHED THIS MONTH ====\n';
