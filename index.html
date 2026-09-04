@@ -221,6 +221,10 @@ body{font-family:var(--sans);background:var(--black);color:var(--white);min-heig
       <button class="btn-primary" onclick="processFiles()" id="parse-btn" disabled style="padding:10px 28px;font-size:13px">Analyze All Brands</button>
       <div id="parse-status"></div>
     </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:center">
+      <input type="checkbox" id="split-country-toggle" onchange="SPLIT_COUNTRIES=this.checked" style="accent-color:var(--green);cursor:pointer;width:13px;height:13px">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--gray-dim)">Split multi-country accounts by marketplace</span>
+    </div>
     <div id="parsed-status" style="margin-top:12px"></div>
   </div>
 </div>
@@ -234,7 +238,61 @@ body{font-family:var(--sans);background:var(--black);color:var(--white);min-heig
 </div><!-- /container -->
 
 <script>
-var CHECKIN_MODE=false;
+var SPLIT_COUNTRIES=false;
+var BRAND_CCY={};
+var CURRENCY_TO_MARKET={USD:'US',CAD:'CA',MXN:'MX',GBP:'UK',EUR:'EU',AUD:'AU',JPY:'JP',INR:'IN',BRL:'BR',SAR:'SA',AED:'AE',PLN:'PL',SEK:'SE',TRY:'TR',EGP:'EG'};
+var CURRENCY_SYMBOL={USD:'$',CAD:'CA$',MXN:'MX$',GBP:'£',EUR:'€',AUD:'AU$',JPY:'¥',INR:'₹',BRL:'R$',SAR:'SAR ',AED:'AED ',PLN:'PLN ',SEK:'SEK ',TRY:'TRY ',EGP:'EGP '};
+var MARKET_SYMBOL={US:'$',CA:'CA$',MX:'MX$',UK:'£',GB:'£',AU:'AU$',JP:'¥',IN:'₹',EU:'€',BR:'R$'};
+
+function splitConsolidatedByCountry(rows,doSplit){
+  if(doSplit===undefined)doSplit=true;
+  var out={rows:rows,splitBrands:[],brandCcy:{},combinedMultiCurrency:[]};
+  if(!rows||!rows.length)return out;
+  var r0=rows[0];
+  var brandCol=getCol(r0,['advertiser account name','account name','brand name']);
+  var countryCol=getCol(r0,['country','country code','marketplace country','marketplace']);
+  var currencyCol=countryCol?null:getCol(r0,['budget currency','currency','currency code']);
+  if(!brandCol||(!countryCol&&!currencyCol))return out;
+
+  function marketFor(r){
+    if(countryCol)return String(r[countryCol]||'').trim().toUpperCase();
+    var cur=String(r[currencyCol]||'').trim().toUpperCase();
+    return cur?(CURRENCY_TO_MARKET[cur]||cur):'';
+  }
+  function symbolFor(r){
+    if(currencyCol){var cur=String(r[currencyCol]||'').trim().toUpperCase();return cur?(CURRENCY_SYMBOL[cur]||cur+' '):'$';}
+    var mkt=marketFor(r);return mkt?(MARKET_SYMBOL[mkt]||'$'):'$';
+  }
+
+  var marketsByBrand={};
+  rows.forEach(function(r){
+    var b=String(r[brandCol]||'').trim();if(!b)return;
+    var mk=marketFor(r);if(!mk)return;
+    if(!marketsByBrand[b])marketsByBrand[b]=new Set();
+    marketsByBrand[b].add(mk);
+  });
+  var multiMarket={};
+  Object.keys(marketsByBrand).forEach(function(b){if(marketsByBrand[b].size>1)multiMarket[b]=true;});
+
+  if(!doSplit){
+    rows.forEach(function(r){
+      var b=String(r[brandCol]||'').trim();
+      if(!b||multiMarket[b])return;
+      if(!out.brandCcy[b])out.brandCcy[b]=symbolFor(r);
+    });
+    out.combinedMultiCurrency=Object.keys(multiMarket).map(function(b){return{brand:b,countries:[...marketsByBrand[b]].sort()};});
+    return out;
+  }
+
+  rows.forEach(function(r){
+    var b=String(r[brandCol]||'').trim();if(!b)return;
+    var finalLabel=b;
+    if(multiMarket[b]){var mk=marketFor(r);finalLabel=b+' ('+(mk||'Unknown')+')';r[brandCol]=finalLabel;}
+    if(!out.brandCcy[finalLabel])out.brandCcy[finalLabel]=symbolFor(r);
+  });
+  out.splitBrands=Object.keys(multiMarket).map(function(b){return{brand:b,countries:[...marketsByBrand[b]].sort()};});
+  return out;
+}
 
 function toggleCheckin(){
   CHECKIN_MODE=!CHECKIN_MODE;
@@ -622,6 +680,11 @@ async function processFiles(){
 
     var consolidated=results[0];
     var campExtra=[];
+
+    // Split multi-country accounts by marketplace if toggle is on
+    var countrySplit=splitConsolidatedByCountry(consolidated,SPLIT_COUNTRIES);
+    consolidated=countrySplit.rows;
+    BRAND_CCY=countrySplit.brandCcy||{};
 
     // Split consolidated report into STR rows (have search term) and use all rows for placement
     // The consolidated report IS the STR — all rows have search term + placement on same row
@@ -2263,14 +2326,28 @@ async function generateCallout(brand){
   if(m.placementTable){
     var pt=m.placementTable;
     out+='==== PLACEMENT BREAKDOWN (NON-BRANDED) ====\n';
-    out+='      '+padR('Placement',24)+padL('Spend',10)+padL('% Spend',9)+padL('CPC',8)+padL('CVR',8)+padL('ROAS',7)+'\n';
-    out+='      '+'-'.repeat(66)+'\n';
+    var cols=[
+      {h:'Placement',     w:20,align:'L'},
+      {h:'Spend',         w:10,align:'R'},
+      {h:'% Spend',       w:9, align:'R'},
+      {h:'CPC',           w:7, align:'R'},
+      {h:'CVR',           w:7, align:'R'},
+      {h:'ROAS',          w:7, align:'R'},
+    ];
+    function row(vals){
+      return'      '+cols.map(function(c,i){
+        var v=String(vals[i]);
+        return c.align==='L'?padR(v,c.w):padL(v,c.w);
+      }).join('  ')+'\n';
+    }
+    out+=row(cols.map(function(c){return c.h;}));
+    out+='      '+'-'.repeat(cols.reduce(function(s,c){return s+c.w+2;},0)-2)+'\n';
     pt.placements.forEach(function(p){
-      out+='      '+padR(p.label,24)+padL(fmt$(p.sp),10)+padL(p.pct.toFixed(1)+'%',9)+padL('$'+p.cpc.toFixed(2),8)+padL(p.cvr.toFixed(1)+'%',8)+padL(p.roas.toFixed(2)+'x',7)+'\n';
+      out+=row([p.label,fmt$(p.sp),p.pct.toFixed(1)+'%','$'+p.cpc.toFixed(2),p.cvr.toFixed(1)+'%',p.roas.toFixed(2)+'x']);
     });
-    out+='      '+'-'.repeat(66)+'\n';
+    out+='      '+'-'.repeat(cols.reduce(function(s,c){return s+c.w+2;},0)-2)+'\n';
     var t=pt.total;
-    out+='      '+padR('NB Total',24)+padL(fmt$(t.sp),10)+padL('100%',9)+padL('$'+t.cpc.toFixed(2),8)+padL(t.cvr.toFixed(1)+'%',8)+padL(t.roas.toFixed(2)+'x',7)+'\n';
+    out+=row(['NB Total',fmt$(t.sp),'100%','$'+t.cpc.toFixed(2),t.cvr.toFixed(1)+'%',t.roas.toFixed(2)+'x']);
   }
 
   out+='==== TOP NON-BRANDED CAMPAIGNS ====\n';
@@ -2366,6 +2443,7 @@ function resetApp(){
   STR_BY_BRAND={};CAMP_BY_BRAND={};SP_STR_BY_BRAND={};PLACEMENT_BY_BRAND={};
   BRAND_DATA={};ACTIVE_BRAND=null;ACTIVE_SEC={};CALLOUT_STATE={};
   CHECKIN_MODE=false;
+  BRAND_CCY={};
   document.getElementById('main-content').style.display='none';
   document.getElementById('reset-btn').style.display='none';
   document.getElementById('checkin-btn').style.display='none';
