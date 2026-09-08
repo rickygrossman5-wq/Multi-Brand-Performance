@@ -427,13 +427,6 @@ function renderCheckinMode(){
         ciCard('Auto NB ROAS',m.autoNBSpend>0?fmtX(m.autoNBROAS):'—',autoC)+
         ciCard('Wasted Spend',fmt$(m.totalWasted)+' · '+fmtPct(m.wastedPct),wasteC)+
       '</div>'+
-      // DSP
-      (m.dspSpend>0?'<div class="g4" style="margin-top:12px">'+
-        ciCard('DSP Spend',fmt$(m.dspSpend),'var(--white)')+
-        ciCard('DSP Sales',fmt$(m.dspSales),'var(--white)')+
-        ciCard('DSP ROAS',fmtX(m.dspROAS),m.dspROAS>=2?'var(--green)':m.dspROAS>=1?'var(--amber)':'var(--red)')+
-        ciCard('DSP Purchases',m.dspPurch+' orders','var(--white)')+
-      '</div>':'')+
       breakdownHTML+
       plcHTML+
       // Top/worst campaigns
@@ -740,7 +733,9 @@ async function processFiles(){
     // Build brand list from campaign report non-DSP rows only
     var ppcCampRows=PARSED.camp.filter(function(r){
       var adProd=String(r['Ad product']||r['Ad Product']||'').toLowerCase();
-      return !adProd.includes('dsp');
+      var campName=String(r['Campaign name']||'');
+      // Exclude DSP via Ad product column OR campaign name containing DSP
+      return !adProd.includes('dsp')&&!/\bDSP\b/i.test(campName);
     });
     var brands=[...new Set(ppcCampRows.map(function(r){return String(r[brandCol]||'').trim();}))].filter(Boolean).sort();
     if(brands.length===0){
@@ -816,10 +811,15 @@ function computeBrand(brand,brandCol){
   var cSales=getCol(c0,['sales','sales (converted)','7 day total sales','14 day total sales']);
   var cPurchases=getCol(c0,['purchases']);
   var cAdProd=getCol(c0,['ad product','ad type']);
+  function isDSP(r){
+    if(cAdProd)return /dsp/i.test(String(r[cAdProd]||''));
+    // No Ad product column — detect DSP by campaign name
+    return /\bDSP\b/i.test(String(r[cName]||''));
+  }
 
   // Split DSP vs PPC
-  var dspRows=campRows.filter(function(r){return /dsp/i.test(String(r[cAdProd]||''));});
-  var ppcRows=campRows.filter(function(r){return !/dsp/i.test(String(r[cAdProd]||''));});
+  var dspRows=campRows.filter(function(r){return isDSP(r);});
+  var ppcRows=campRows.filter(function(r){return !isDSP(r);});
 
   var dspSpend=dspRows.reduce(function(s,r){return s+num(r[cSpend]);},0);
   var dspSales=dspRows.reduce(function(s,r){return s+num(r[cSales]);},0);
@@ -898,8 +898,9 @@ function computeBrand(brand,brandCol){
     if(v==='EXACT')return'EXACT';
     if(v==='PHRASE')return'PHRASE';
     if(v==='BROAD')return'BROAD';
-    if(v==='TARGETING_EXPRESSION_PREDEFINED')return'AUTO';   // auto campaign sub-types
-    if(v==='TARGETING_EXPRESSION')return'PAT';               // manual ASIN/category PAT
+    if(v==='TARGETING_EXPRESSION_PREDEFINED')return'AUTO';
+    if(v==='TARGETING_EXPRESSION')return'PAT';
+    if(v==='THEME')return'MANUAL_OTHER';
     // Old format / no column — fall back to campaign name inference
     var cn=campName.toLowerCase();
     if(/\bauto\b/.test(cn))return'AUTO';
@@ -940,7 +941,7 @@ function computeBrand(brand,brandCol){
   var phraseSpend=strMapped.filter(function(r){return r.mt==='PHRASE';}).reduce(function(s,r){return s+r.sp;},0);
   var broadSpend=strMapped.filter(function(r){return r.mt==='BROAD';}).reduce(function(s,r){return s+r.sp;},0);
   var manualOtherSpend=strMapped.filter(function(r){return r.mt==='MANUAL_OTHER';}).reduce(function(s,r){return s+r.sp;},0);
-  var mtTotal=exactSpend+phraseSpend+broadSpend+manualOtherSpend;
+  var mtTotal=exactSpend+phraseSpend+broadSpend;
 
   // Top NB search terms (from STR, NB campaigns only, no brand name, no ASIN)
   var brandSlug=brand.toLowerCase().replace(/[-\s,.]/g,'').slice(0,6);
@@ -2309,19 +2310,7 @@ async function generateCallout(brand){
     out+='      PPC:           '+P(totalPPCSpend,totalAll)+'\n';
   }
 
-  if(dspVal>0){
-    out+='==== DSP PERFORMANCE ====\n';
-    out+='* Total DSP Spend: '+fmt$(dspVal)+'\n';
-    out+='* Total DSP Sales: '+fmt$(dspSales)+'\n';
-    out+='* DSP ROAS: '+(dspROAS>0?dspROAS.toFixed(2)+'x':'—')+'\n';
-    out+='* DSP Purchases: '+dspPurch+'\n';
-    if(m.dspCampaigns&&m.dspCampaigns.length>0){
-      out+='* Campaigns:\n';
-      m.dspCampaigns.forEach(function(c){
-        out+='      '+c.name+' — '+fmt$(c.sp)+' | ROAS: '+(c.roas>0?c.roas.toFixed(2)+'x':'—')+'\n';
-      });
-    }
-  }
+
 
   if(m.placementTable){
     var pt=m.placementTable;
