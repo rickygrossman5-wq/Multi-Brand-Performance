@@ -735,7 +735,7 @@ async function processFiles(){
       var adProd=String(r['Ad product']||r['Ad Product']||'').toLowerCase();
       var campName=String(r['Campaign name']||'');
       // Exclude DSP via Ad product column OR campaign name containing DSP
-      return !adProd.includes('dsp')&&!/\bDSP\b/i.test(campName);
+      return !adProd.includes('dsp')&&!/(?:^|[\s_|])DSP(?:[\s_|]|$)/i.test(campName);
     });
     var brands=[...new Set(ppcCampRows.map(function(r){return String(r[brandCol]||'').trim();}))].filter(Boolean).sort();
     if(brands.length===0){
@@ -813,8 +813,8 @@ function computeBrand(brand,brandCol){
   var cAdProd=getCol(c0,['ad product','ad type']);
   function isDSP(r){
     if(cAdProd)return /dsp/i.test(String(r[cAdProd]||''));
-    // No Ad product column — detect DSP by campaign name
-    return /\bDSP\b/i.test(String(r[cName]||''));
+    // No Ad product column — detect DSP by campaign name (handles both | DSP | and _DSP_ formats)
+    return /(?:^|[\s_|])DSP(?:[\s_|]|$)/i.test(String(r[cName]||''));
   }
 
   // Split DSP vs PPC
