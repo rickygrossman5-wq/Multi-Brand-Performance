@@ -769,6 +769,12 @@ async function processFiles(){
         document.getElementById('main-content').style.display='';
         document.getElementById('reset-btn').style.display='';
         document.getElementById('checkin-btn').style.display='';
+        // Always exit check-in mode when a new report is analyzed
+        CHECKIN_MODE=false;
+        var checkinBtn=document.getElementById('checkin-btn');
+        if(checkinBtn){checkinBtn.textContent='Check-in Mode';checkinBtn.style.color='';checkinBtn.style.borderColor='';}
+        var brandNav=document.getElementById('brand-nav');
+        if(brandNav)brandNav.style.display='';
         var uz=document.getElementById('upload-zone');
         uz.style.minHeight='0';
         uz.style.marginBottom='0';
