@@ -714,7 +714,13 @@ async function processFiles(){
     });
     PARSED.camp=Object.values(campAgg).concat(extraDSP);
 
-    // Placement rows — use all consolidated rows (each has Placement classification + Search term)
+    // Apply brand aliases — merge secondary account names into primary
+    if(Object.keys(BRAND_ALIASES).length>0){
+      consolidated.forEach(function(r){
+        var b=String(r[brandCol]||'').trim();
+        if(BRAND_ALIASES[b])r[brandCol]=BRAND_ALIASES[b];
+      });
+    }
     PARSED.placement=consolidated.filter(function(r){
       return String(r['Placement classification']||'').trim()!=='';
     });
@@ -735,7 +741,7 @@ async function processFiles(){
       var adProd=String(r['Ad product']||r['Ad Product']||'').toLowerCase();
       var campName=String(r['Campaign name']||'');
       // Exclude DSP via Ad product column OR campaign name containing DSP
-      return !adProd.includes('dsp')&&!/(?:^|[\s_|])DSP(?:[\s_|]|$)/i.test(campName);
+      return !adProd.includes('dsp')&&!/(?:^|[\s_|])DSP(?:[\s_|]|$)/i.test(campName)&&!/^\d{8}_PLTFRM_/i.test(campName);
     });
     var brands=[...new Set(ppcCampRows.map(function(r){return String(r[brandCol]||'').trim();}))].filter(Boolean).sort();
     if(brands.length===0){
@@ -813,8 +819,10 @@ function computeBrand(brand,brandCol){
   var cAdProd=getCol(c0,['ad product','ad type']);
   function isDSP(r){
     if(cAdProd)return /dsp/i.test(String(r[cAdProd]||''));
-    // No Ad product column — detect DSP by campaign name (handles both | DSP | and _DSP_ formats)
-    return /(?:^|[\s_|])DSP(?:[\s_|]|$)/i.test(String(r[cName]||''));
+    var cn=String(r[cName]||'');
+    // DSP by Ad product column (if present)
+    // DSP by campaign name — either contains DSP or follows YYYYMMDD_PLTFRM_ date-prefix convention
+    return /(?:^|[\s_|])DSP(?:[\s_|]|$)/i.test(cn)||/^\d{8}_PLTFRM_/i.test(cn);
   }
 
   // Split DSP vs PPC
@@ -845,8 +853,8 @@ function computeBrand(brand,brandCol){
 
   var bRows=ppcRows.filter(function(r){return isBranded(String(r[cName]||''));});
   var nbRows=ppcRows.filter(function(r){return !isBranded(String(r[cName]||''));});
-  var autoRows=ppcRows.filter(function(r){return isAuto(String(r[cName]||''));});
-  var manualRows=ppcRows.filter(function(r){return !isAuto(String(r[cName]||''));});
+  var autoRows=nbRows.filter(function(r){return isAuto(String(r[cName]||''));});
+  var manualRows=nbRows.filter(function(r){return !isAuto(String(r[cName]||''));});
 
   var bSpend=bRows.reduce(function(s,r){return s+num(r[cSpend]);},0);
   var nbSpend=nbRows.reduce(function(s,r){return s+num(r[cSpend]);},0);
@@ -1282,6 +1290,10 @@ function renderBrandNav(brands){
 var BRAND_SHORT={'Achim Imports':'Achim','Black Wolf Nation':'Black Wolf','Feel Goods Co':'Feel Goods',
   'HoldOn Bags':'HoldOn','Immuno 150 Health':'Immuno 150','Pro Supps':'Pro Supps',
   'Puori Inc':'Puori','Reel Products, Inc.':'Reel','Sand Cloud':'Sand Cloud','The Humane Company':'Humane'};
+
+// Alias map — secondary account names that should be merged into a primary account
+// Key = account name in the report, Value = primary brand name to merge into
+var BRAND_ALIASES={'Humane':'The Humane Company'};
 
 function selectAllCallouts(){
   ACTIVE_BRAND='__all__';
