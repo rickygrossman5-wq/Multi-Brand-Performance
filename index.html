@@ -307,7 +307,11 @@ function toggleCheckin(){
   } else {
     var brandNav=document.getElementById('brand-nav');
     if(brandNav)brandNav.style.display='';
-    if(ACTIVE_BRAND)renderBrandContent(ACTIVE_BRAND);
+    if(ACTIVE_BRAND&&ACTIVE_BRAND!=='__all__')renderBrandContent(ACTIVE_BRAND);
+    else if(Object.keys(BRAND_DATA).length>0){
+      var firstBrand=Object.keys(BRAND_DATA).sort()[0];
+      selectBrand(firstBrand);
+    }
   }
 }
 
@@ -689,6 +693,11 @@ async function processFiles(){
     consolidated.forEach(function(r){
       var brand=String(r['Advertiser account name']||'').trim();
       var camp=String(r['Campaign name']||'').trim();
+      // Exclude DSP campaigns at aggregation time
+      var adProd=String(r['Ad product']||'').toLowerCase();
+      if(adProd.includes('dsp'))return;
+      if(/(?:^|[\s_|])DSP(?:[\s_|]|$)/i.test(camp))return;
+      if(/^\d{8}_PLTFRM_/i.test(camp))return;
       var key=brand+'||'+camp;
       if(!campAgg[key]){
         campAgg[key]={
@@ -1445,6 +1454,15 @@ function downloadAllCallouts(){
 }
 
 function selectBrand(brand){
+  // Exit check-in mode if active
+  if(CHECKIN_MODE){
+    CHECKIN_MODE=false;
+    var cb=document.getElementById('checkin-btn');
+    if(cb){cb.textContent='Check-in Mode';cb.style.color='';cb.style.borderColor='';}
+    var nav=document.getElementById('brand-nav');
+    if(nav)nav.style.display='';
+  }
+  ACTIVE_BRAND=brand;
   document.querySelectorAll('.brand-tab').forEach(function(t){t.classList.remove('on');});
   var tab=document.getElementById('btab-'+CSS.escape(brand));
   if(tab)tab.classList.add('on');
