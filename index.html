@@ -1377,14 +1377,62 @@ function downloadAllCallouts(){
     var lines=cs.output.split('\n');
     var html='';
     var inBlock=false;
+    var inPlacementTable=false;
+    var placementRows=[];
+    var currentHeading='';
+
+    function flushPlacementTable(){
+      if(!placementRows.length){inPlacementTable=false;return;}
+      // First row is headers, last row is NB Total, rows in between are data
+      var hdr=placementRows[0];
+      var dataRows=placementRows.slice(1,placementRows.length-1);
+      var totRow=placementRows[placementRows.length-1];
+      function tdH(v){return'<th style="text-align:right;padding:6px 10px;font-size:9pt;font-weight:600;color:#888;font-family:\'DM Mono\',monospace;letter-spacing:.06em;text-transform:uppercase;border-bottom:2px solid #111">'+esc(v)+'</th>';}
+      function tdL(v){return'<th style="text-align:left;padding:6px 10px;font-size:9pt;font-weight:600;color:#888;font-family:\'DM Mono\',monospace;letter-spacing:.06em;text-transform:uppercase;border-bottom:2px solid #111">'+esc(v)+'</th>';}
+      function td(v,bold){return'<td style="text-align:right;padding:6px 10px;font-size:10.5pt;'+(bold?'font-weight:600;':'')+'">'+esc(v)+'</td>';}
+      function tdName(v,bold){return'<td style="text-align:left;padding:6px 10px;font-size:10.5pt;'+(bold?'font-weight:600;':'')+'">'+esc(v)+'</td>';}
+      html+='<table style="width:100%;border-collapse:collapse;margin:8px 0 16px"><thead><tr>'+tdL(hdr[0])+hdr.slice(1).map(function(h){return tdH(h);}).join('')+'</tr></thead><tbody>'+
+        dataRows.map(function(r){return'<tr style="border-bottom:1px solid #e5e5e5">'+tdName(r[0])+r.slice(1).map(function(v){return td(v,false);}).join('')+'</tr>';}).join('')+
+        '<tr style="border-top:2px solid #111">'+tdName(totRow[0],true)+totRow.slice(1).map(function(v){return td(v,true);}).join('')+'</tr>'+
+      '</tbody></table>';
+      inPlacementTable=false;placementRows=[];
+    }
+
+    function parsePlacementRow(line){
+      // Split on 2+ spaces
+      return line.trim().split(/\s{2,}/).filter(Boolean);
+    }
+
     lines.forEach(function(line){
       var trimmed=line.trim();
+
+      // Detect placement table section
       if(trimmed.startsWith('====')&&trimmed.endsWith('====')){
+        if(inPlacementTable)flushPlacementTable();
         if(inBlock)html+='</div>';
         var heading=trimmed.replace(/^=+\s*/,'').replace(/\s*=+$/,'');
-        html+='<div class="section-block"><h3>'+esc(heading)+'</h3>';
-        inBlock=true;
-      } else if(line.match(/^      /)&&!trimmed.startsWith('*')){
+        currentHeading=heading;
+        if(heading==='PLACEMENT BREAKDOWN (NON-BRANDED)'){
+          inPlacementTable=true;
+          html+='<div class="section-block"><h3>'+esc(heading)+'</h3>';
+          inBlock=true;
+        } else {
+          html+='<div class="section-block"><h3>'+esc(heading)+'</h3>';
+          inBlock=true;
+        }
+        return;
+      }
+
+      if(inPlacementTable){
+        // Skip separator lines
+        if(/^-{5,}/.test(trimmed))return;
+        if(trimmed==='')return;
+        // Parse table rows (header or data)
+        placementRows.push(parsePlacementRow(line));
+        return;
+      }
+
+      if(line.match(/^      /)&&!trimmed.startsWith('*')){
         html+='<div class="sub-line">'+esc(trimmed)+'</div>';
       } else if(trimmed.startsWith('   * ')){
         html+='<div class="sub-line">'+esc(trimmed.slice(5))+'</div>';
@@ -1396,6 +1444,7 @@ function downloadAllCallouts(){
         html+='<p>'+esc(trimmed)+'</p>';
       }
     });
+    if(inPlacementTable)flushPlacementTable();
     if(inBlock)html+='</div>';
     sections+='<div class="brand-section">'+
       '<div class="brand-header">'+
