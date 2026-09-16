@@ -2336,9 +2336,9 @@ async function generateCallout(brand){
     out+='      Phrase:        '+P(m.phraseSpend,m.mtTotal)+'\n';
     out+='      Broad:         '+P(m.broadSpend,m.mtTotal)+'\n';
   }
-  out+='* Auto vs. Manual Campaign\n';
-  out+='      Auto:          '+P(m.autoSpend,totalPPCSpend)+(m.autoNBSpend>0?' (NB ROAS: '+m.autoNBROAS.toFixed(2)+'x)':'')+'\n';
-  out+='      Manual:        '+P(m.manualSpend,totalPPCSpend)+(m.avgNBROAS>0?' (NB ROAS: '+m.avgNBROAS.toFixed(2)+'x)':'')+'\n';
+  out+='* Auto vs. Manual Campaign (% of NB spend)\n';
+  out+='      Auto:          '+P(m.autoSpend,m.nbSpend)+(m.autoNBSpend>0?' (NB ROAS: '+m.autoNBROAS.toFixed(2)+'x)':'')+'\n';
+  out+='      Manual:        '+P(m.manualSpend,m.nbSpend)+(m.avgNBROAS>0?' (NB ROAS: '+m.avgNBROAS.toFixed(2)+'x)':'')+'\n';
   if(dspVal>0){
     var totalAll=totalPPCSpend+dspVal;
     out+='* DSP vs. PPC\n';
@@ -2352,12 +2352,12 @@ async function generateCallout(brand){
     var pt=m.placementTable;
     out+='==== PLACEMENT BREAKDOWN (NON-BRANDED) ====\n';
     var cols=[
-      {h:'Placement',     w:20,align:'L'},
+      {h:'Placement',     w:22,align:'L'},
       {h:'Spend',         w:10,align:'R'},
       {h:'% Spend',       w:9, align:'R'},
-      {h:'CPC',           w:7, align:'R'},
-      {h:'CVR',           w:7, align:'R'},
-      {h:'ROAS',          w:7, align:'R'},
+      {h:'CPC',           w:8, align:'R'},
+      {h:'CVR',           w:8, align:'R'},
+      {h:'ROAS',          w:8, align:'R'},
     ];
     function row(vals){
       return'      '+cols.map(function(c,i){
