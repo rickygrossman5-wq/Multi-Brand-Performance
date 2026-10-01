@@ -37,79 +37,19 @@ html{scroll-behavior:smooth}
 body{font-family:var(--sans);background:var(--black);color:var(--white);min-height:100vh;-webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden}
 .grain{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");background-repeat:repeat;background-size:128px}
 body>*{position:relative;z-index:1}
-.masthead{display:flex;align-items:center;gap:.7rem;padding:var(--pad) var(--pad) 0;max-width:1100px;margin:0 auto}
-.tick{width:6px;height:20px;background:var(--white);border-radius:2px}
-.eyebrow{font-family:var(--mono);font-size:.66rem;letter-spacing:.18em;color:var(--gray-dim);text-transform:uppercase}
-.page-nav{display:flex;gap:.5rem;margin-left:auto}
-.page-nav a{font-family:var(--sans);font-size:.72rem;font-weight:500;letter-spacing:.02em;text-transform:uppercase;color:var(--gray);text-decoration:none;padding:6px 14px;border:1px solid var(--line);border-radius:20px;transition:color .12s,border-color .12s,background .12s}
-.page-nav a:hover{color:var(--white);border-color:rgba(255,255,255,.3)}
-.page-nav a.active{background:var(--white);color:var(--black);border-color:var(--white);font-weight:600}
-.hero{padding:clamp(2rem,6vw,3.5rem) var(--pad) clamp(1.6rem,4vw,2.4rem);max-width:1100px;margin:0 auto}
-.hero-title{font-family:var(--sans);font-weight:700;letter-spacing:.01em;font-size:clamp(2.6rem,8vw,5rem);line-height:.95;text-transform:uppercase}
-.hero-rule{color:var(--gray-dim);font-weight:400;padding:0 .04em}
-.hero-sub{font-family:var(--sans);font-size:clamp(1rem,1.8vw,1.15rem);color:var(--gray);max-width:54ch;margin-top:1.2rem;line-height:1.5}
-.stage{padding:clamp(1.4rem,3.5vw,2.2rem) var(--pad);border-top:1px solid var(--line-soft);max-width:1100px;margin:0 auto}
-.stage-index{display:flex;align-items:center;gap:.8rem;margin-bottom:1.2rem;flex-wrap:wrap}
-.stage-index span:first-child{font-family:var(--mono);font-size:.85rem;color:var(--gray-dim)}
-.stage-name{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)}
-.stage-note{font-family:var(--sans);color:var(--gray);font-size:.9rem;max-width:64ch;margin-bottom:1.3rem}
-.skip-toggle{display:inline-flex;align-items:center;gap:.45rem;margin-left:auto;font-family:var(--mono);font-size:.7rem;color:var(--gray-dim);cursor:pointer;text-transform:none}
-.skip-toggle input{accent-color:var(--white);cursor:pointer}
-.skip-toggle:hover{color:var(--white)}
 .upload-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:stretch}
 .drop{display:flex;flex-direction:column;gap:.45rem;justify-content:center;min-height:130px;padding:1.5rem;cursor:pointer;user-select:none;background:var(--ink);border:1px dashed var(--line);border-radius:10px;transition:border-color .15s,background .15s}
 .drop:hover{background:var(--card);border-color:rgba(255,255,255,.28)}
-.drop.loaded{border-style:solid;border-color:var(--green);background:rgba(62,207,116,.07)}
 .drop.drag{border-color:rgba(255,255,255,.45);background:var(--card)}
-.drop-wide{min-height:120px}
-.drop-period{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-dim)}
-.drop-cue{font-family:var(--sans);font-size:1.15rem;font-weight:600;color:var(--white)}
-.drop-file{font-family:var(--mono);font-size:.78rem;color:var(--green);word-break:break-all}
-.arrow{align-self:center;font-family:var(--sans);font-size:1.6rem;color:var(--gray-dim)}
-.label-row{display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap}
 .field{display:flex;flex-direction:column;gap:.35rem}
 .field label{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-dim)}
 input[type=text],input[type=number],textarea,select{font-family:var(--sans);font-size:.8rem;padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:var(--ink);color:var(--white);outline:none;transition:border-color .12s;min-width:150px}
 input[type=text]:focus,input[type=number]:focus,textarea:focus,select:focus{border-color:rgba(255,255,255,.4)}
 input::placeholder,textarea::placeholder{color:var(--gray-dim)}
-.cat-row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(180px,2.4fr) auto;gap:.7rem;margin-bottom:.6rem;align-items:center}
-.cat-row input{width:100%}
-.cat-del{background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--gray);width:34px;height:34px;cursor:pointer;font-size:1rem;transition:.15s}
-.cat-del:hover{border-color:var(--red);color:var(--red)}
-.ghost-btn,.run-btn{font-family:var(--sans);cursor:pointer;border-radius:20px;transition:opacity .12s,color .12s,border-color .12s,background .12s}
-.ghost-btn{font-size:.75rem;font-weight:500;padding:7px 16px;background:transparent;color:var(--gray);border:1px solid var(--line)}
-.ghost-btn:hover{color:var(--white);border-color:rgba(255,255,255,.35)}
-.run-btn{font-size:.85rem;font-weight:600;padding:9px 22px;background:var(--white);color:var(--black);border:1px solid var(--white)}
-.run-btn:hover:not(:disabled){opacity:.85}
-.run-btn:disabled{background:var(--card);color:var(--gray-dim);border-color:var(--line);cursor:not-allowed}
-.run-bar{display:flex;align-items:center;gap:1.1rem;padding:1.2rem var(--pad) 2rem;max-width:1100px;margin:0 auto;flex-wrap:wrap}
-.run-hint{font-family:var(--mono);font-size:.72rem;color:var(--gray-dim)}
 .copy-btn.copied{border-color:var(--green);color:var(--green)}
-.results-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;border-top:1px solid var(--line)}
-.results-head .stage-index{margin-bottom:0}
-.head-actions{display:flex;gap:.55rem;align-items:center}
 #period-name{font-family:var(--mono)}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem;padding:0 var(--pad);max-width:1100px;margin:0 auto}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px}
-.card-label{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-dim);margin-bottom:10px}
-.card-val{font-family:var(--mono);font-size:1.7rem;font-weight:500;line-height:1;color:var(--white)}
-.card-flow{font-family:var(--mono);font-size:.72rem;color:var(--gray-dim);margin-top:8px}
-.card-delta{font-family:var(--mono);font-size:.72rem;margin-top:5px}
-.up{color:var(--green)} .down{color:var(--red)} .flat{color:var(--gray-dim)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px} .down{color:var(--red)} .flat{color:var(--gray-dim)}
 .block{padding:clamp(1.6rem,3.5vw,2.4rem) var(--pad);border-top:1px solid var(--line-soft);max-width:1100px;margin:0 auto}
-.block-title{font-family:var(--sans);font-weight:600;font-size:clamp(1.1rem,2.2vw,1.4rem);margin-bottom:1.2rem;letter-spacing:.01em}
-.block-sub{color:var(--gray-dim);font-size:.8em;font-weight:400}
-.block-title code{font-family:var(--mono);font-size:.72em;background:var(--ink);padding:.12em .45em;border:1px solid var(--line);border-radius:4px}
-.scope-bar{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;padding:1.2rem var(--pad) .2rem;max-width:1100px;margin:0 auto}
-.scope-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-dim)}
-.scope-toggle{display:inline-flex;gap:6px;flex-wrap:wrap}
-.scope-opt{font-family:var(--sans);font-size:.75rem;font-weight:500;padding:6px 16px;border:1px solid var(--line);border-radius:20px;background:transparent;color:var(--gray);cursor:pointer;transition:color .12s,border-color .12s,background .12s}
-.scope-opt:hover{color:var(--white);border-color:rgba(255,255,255,.3)}
-.scope-opt.active{background:var(--white);color:var(--black);border-color:var(--white);font-weight:600}
-.scope-count{font-family:var(--mono);opacity:.55;margin-left:.3em;font-size:.92em}
-.scope-opt.active .scope-count{opacity:.5}
-.scope-note{font-family:var(--mono);font-size:.68rem;color:var(--gray-dim)}
-.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--black)}
 table{width:100%;border-collapse:collapse;font-size:.72rem}
 th,td{padding:9px 16px;white-space:nowrap;text-align:right}
 th:first-child,td:first-child{text-align:left}
@@ -119,77 +59,12 @@ tbody tr:nth-child(odd) td{background:var(--black)}
 tbody tr:nth-child(even) td{background:var(--ink)}
 tbody tr:hover td{background:var(--card)!important}
 tbody tr:last-child td{border-bottom:none}
-.seg-label{font-family:var(--sans);font-weight:600;color:var(--white)}
-.muted{color:var(--gray-dim)}
-.metric-name{font-family:var(--sans);color:var(--gray);text-align:left;width:9rem}
-.muted-num{color:var(--gray);font-family:var(--mono)}
 td.num,.num{font-family:var(--mono)}
 .flag{display:inline-block;font-family:var(--mono);font-size:.58rem;padding:2px 7px;border-radius:4px;border:1px solid var(--line);color:var(--gray);background:rgba(255,255,255,.04);margin-left:.4rem}
 .flag.nb{color:var(--green);border-color:rgba(62,207,116,.4)}
 .flag.b{color:var(--gray);border-color:var(--line)}
 .flag.dsp{color:#8FB7FF;border-color:rgba(143,183,255,.35)}
-.movers-controls{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap}
-.movers-search{font-size:.74rem;padding:5px 14px;border-radius:20px;min-width:200px;flex:0 1 300px}
-.movers-count{font-family:var(--mono);font-size:.7rem;color:var(--gray-dim)}
-table.movers th.sortable{cursor:pointer;user-select:none}
-table.movers th.sortable:hover,table.movers th.active{color:var(--white)}
-table.movers th:first-child,table.movers td:first-child{position:sticky;left:0;z-index:2;box-shadow:1px 0 0 var(--line);min-width:240px;max-width:340px;overflow:hidden;text-overflow:ellipsis}
-table.movers thead th:first-child{z-index:6;background:var(--ink)}
-table.movers tbody tr:nth-child(odd) td:first-child{background:var(--black)}
-table.movers tbody tr:nth-child(even) td:first-child{background:var(--ink)}
-table.movers tbody tr:hover td:first-child{background:var(--card)!important}
-.chart-frame{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin-bottom:1.5rem;height:300px}
-.caption{font-family:var(--sans);color:var(--gray-dim);font-size:.9rem;margin-top:1rem;max-width:70ch;line-height:1.5}
-.rec-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.rec-col{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:0 1.2rem 1.2rem}
-.rec-head{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:1rem 0 .8rem;font-weight:500}
-.rec-head.pause{color:var(--red)} .rec-head.lean{color:var(--green)}
-.rec-item{padding:.8rem 0;border-top:1px solid var(--line-soft)}
-.rec-name{font-family:var(--sans);font-size:.95rem;font-weight:500;line-height:1.3}
-.rec-reason{font-family:var(--mono);font-size:.72rem;margin-top:.25rem}
-.rec-item.pause .rec-reason{color:var(--red)}
-.rec-item.lean .rec-reason{color:var(--green)}
-.rec-empty{font-family:var(--sans);color:var(--gray-dim);font-style:italic;padding:.8rem 0;border-top:1px solid var(--line-soft)}
-table.dd-table{width:100%;border-collapse:collapse;font-size:.74rem;min-width:1500px}
-table.dd-table th{font-family:var(--mono);font-weight:500;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-dim);border-bottom:1px solid var(--line);padding:9px 12px;white-space:nowrap;background:var(--ink);position:sticky;top:0;z-index:5;text-align:right}
-table.dd-table th:first-child{text-align:left}
-table.dd-table th.sortable{cursor:pointer;user-select:none}
-table.dd-table th.sortable:hover,table.dd-table th.active{color:var(--white)}
-table.dd-table td{padding:9px 12px;font-size:.76rem;white-space:nowrap;border-bottom:1px solid var(--line-soft);text-align:right}
-table.dd-table td:first-child{text-align:left}
-table.dd-table td.num{text-align:right;font-family:var(--mono)}
-table.dd-table th:first-child,table.dd-table td:first-child{position:sticky;left:0;z-index:2;box-shadow:1px 0 0 var(--line);min-width:300px;max-width:380px;overflow:hidden;text-overflow:ellipsis}
-table.dd-table thead th:first-child{z-index:6;background:var(--ink)}
-.dd-camp-row{cursor:pointer}
-.dd-camp-row td{border-bottom:1px solid var(--line);color:var(--white);background:var(--ink)}
-.dd-camp-row:hover td{background:var(--card)}
-.dd-camp-row td:first-child{background:var(--ink)}
-.dd-camp-row:hover td:first-child{background:var(--card)}
-.dd-toggle{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border:1px solid var(--line);border-radius:5px;color:var(--gray);font-size:.9rem;line-height:1;margin-right:.6rem;cursor:pointer;flex:0 0 auto;transition:.12s}
-.dd-toggle:hover{border-color:var(--white);color:var(--white)}
-.dd-campname{font-family:var(--sans);font-weight:600;font-size:.9rem}
-.dd-tcount{font-family:var(--mono);color:var(--gray-dim);font-size:.7rem;margin-left:.5rem}
-.dd-tcount::before{content:"·  "}
-.dd-target-row td{color:var(--gray);background:var(--black)}
-.dd-target-row td:first-child{padding-left:2.6rem;background:var(--black)}
-.dd-target-row:hover td{background:var(--card)}
-.dd-target-row:hover td:first-child{background:var(--card)}
-.dd-target{font-family:var(--sans);font-size:.82rem;color:var(--gray)}
-.dd-match{font-family:var(--mono);font-size:.58rem;letter-spacing:.05em;color:var(--gray-dim);border:1px solid var(--line);border-radius:4px;padding:.1em .45em;text-transform:lowercase}
-.query-stage{border-top:1px solid var(--line-soft)}
-.query-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:1.5rem;align-items:start}
-.query-box{background:var(--card);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;min-width:0;overflow:hidden}
-.query-toolbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem .9rem;border-bottom:1px solid var(--line)}
-.query-tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-dim)}
-.query-code{margin:0;padding:1rem;font-family:var(--mono);font-size:.74rem;line-height:1.55;color:var(--gray);white-space:pre-wrap;word-break:break-word;max-height:320px;overflow:auto;background:var(--black)}
-.query-steps{margin:0;padding-left:1.3rem;display:flex;flex-direction:column;gap:.55rem;font-family:var(--sans);font-size:.88rem;color:var(--gray);line-height:1.45}
-.query-steps strong{color:var(--white);font-weight:600}
-.query-steps em{color:var(--white);font-style:normal;border-bottom:1px solid var(--gray-dim)}
-.footer{padding:2.4rem var(--pad) 3rem;max-width:1100px;margin:0 auto}
-.footer-rule{height:1px;background:var(--line);margin-bottom:1rem}
-.footer-mark{font-family:var(--sans);font-weight:700;letter-spacing:.12em;font-size:.78rem;text-transform:uppercase}
-.footer-note{font-family:var(--mono);display:block;margin-top:.5rem;color:var(--gray-dim);font-size:.72rem}
-@media(max-width:760px){.upload-grid{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}.rec-grid{grid-template-columns:1fr}.query-grid{grid-template-columns:1fr}}
+@media(max-width:760px){.upload-grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -495,7 +370,6 @@ function renderCheckinMode(){
     var roasC=roas>=4?'var(--green)':roas>=2?'var(--white)':roas>=1?'var(--amber)':'var(--red)';
     var nbROASC=m.avgNBROAS>=4?'var(--green)':m.avgNBROAS>=2?'var(--white)':m.avgNBROAS>=1?'var(--amber)':'var(--red)';
     var autoC=m.autoNBROAS>=4?'var(--green)':m.autoNBROAS>=2?'var(--white)':m.autoNBROAS>=1?'var(--amber)':'var(--red)';
-    var wasteC=m.wastedPct>0.25?'var(--red)':m.wastedPct>0.1?'var(--amber)':'var(--green)';
 
     // Placement table
     var plcHTML='';
@@ -552,11 +426,10 @@ function renderCheckinMode(){
         '<div style="font-family:var(--mono);font-size:11px;color:var(--gray-dim)">'+fmt$(m.totalPPCSpend)+' PPC spend</div>'+
       '</div>'+
       // Core metrics
-      '<div class="g4">'+
+      '<div class="g3">'+
         ciCard('Total ROAS',fmtX(roas),roasC)+
         ciCard('NB ROAS',fmtX(m.avgNBROAS),nbROASC)+
         ciCard('Auto NB ROAS',m.autoNBSpend>0?fmtX(m.autoNBROAS):'—',autoC)+
-        ciCard('Wasted Spend',fmt$(m.totalWasted)+' · '+fmtPct(m.wastedPct),wasteC)+
       '</div>'+
       // DSP
       (m.dspSpend>0?'<div class="g4" style="margin-top:12px">'+
@@ -665,7 +538,6 @@ var PARSED={str:null,camp:null,placement:null};
 var STR_BY_BRAND={};
 var CAMP_BY_BRAND={};
 var PLACEMENT_BY_BRAND={};
-var SP_STR_BY_BRAND={};
 var BRAND_DATA={};
 var ACTIVE_BRAND=null;
 var ACTIVE_SEC={};
@@ -680,15 +552,11 @@ function num(v){if(v===null||v===undefined||v==='')return 0;var n=parseFloat(Str
 function fmt$(v){return CCY+Math.round(v||0).toLocaleString();}
 function setCCY(brand){CCY=BRAND_CCY[brand]||'$';return CCY;}
 function fmtD$(v){return CCY+(v||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
-function fmtPct(v){return((v||0)*100).toFixed(2)+'%';}
 function fmtX(v){return(v||0).toFixed(2)+'x';}
 function padR(s,n){s=String(s);return s.length>=n?s:s+' '.repeat(n-s.length);}
 function padL(s,n){s=String(s);return s.length>=n?s:' '.repeat(n-s.length)+s;}
-function fmtK(v){return v>=1000?(v/1000).toFixed(1)+'K':Math.round(v).toString();}
 function isBranded(n){return/\|\s*b\s*\|/i.test(String(n));}
 function isAuto(n){return/\bauto\b/i.test(String(n));}
-function isPAT(n){return/\b(pat|cat|asin)\b/i.test(String(n));}
-function isKWMatch(mt){return['EXACT','PHRASE','BROAD'].includes(String(mt||'').toUpperCase().trim());}
 function isASIN(s){return/^B0[A-Z0-9]{8}$/i.test(String(s||'').trim());}
 
 function getCol(obj,cands){
@@ -978,7 +846,7 @@ async function processFiles(){
 
   // Clean slate every run — lets the country-split toggle (or re-analyzing a
   // different file) be re-run without leftover brands/state from last time
-  STR_BY_BRAND={};CAMP_BY_BRAND={};PLACEMENT_BY_BRAND={};SP_STR_BY_BRAND={};
+  STR_BY_BRAND={};CAMP_BY_BRAND={};PLACEMENT_BY_BRAND={};
   BRAND_DATA={};ACTIVE_BRAND=null;ACTIVE_SEC={};CALLOUT_STATE={};BRAND_CCY={};CCY='$';
 
   try{
@@ -988,7 +856,6 @@ async function processFiles(){
     var results=await Promise.all(promises);
 
     var consolidated=results[0];
-    var campExtra=[];
 
     // If any account spans more than one Amazon marketplace/country in this file,
     // split it out so each country is treated as its own account from here on —
@@ -1037,15 +904,7 @@ async function processFiles(){
       if(ntbSalesCol)campAgg[key]['Sales (new to brand)']+=num(r[ntbSalesCol]);
     });
 
-    // Supplement with any DSP rows from the optional campaign report that aren't already in consolidated
-    var existingCamps=new Set(Object.keys(campAgg));
-    var extraDSP=(campExtra||[]).filter(function(r){
-      var brand=String(r['Advertiser account name']||'').trim();
-      var camp=String(r['Campaign name']||'').trim();
-      var key=brand+'||'+camp;
-      return /dsp/i.test(String(r['Ad product']||''))&&!existingCamps.has(key);
-    });
-    PARSED.camp=Object.values(campAgg).concat(extraDSP);
+    PARSED.camp=Object.values(campAgg);
 
     // Placement rows — use all consolidated rows (each has Placement classification + Search term)
     PARSED.placement=consolidated.filter(function(r){
@@ -1085,7 +944,7 @@ async function processFiles(){
     CAMP_BY_BRAND=indexBy(PARSED.camp,brandCol);
     PLACEMENT_BY_BRAND=indexBy(PARSED.placement||[],brandCol);
 
-    var totalRows=consolidated.length+(campExtra.length||0);
+    var totalRows=consolidated.length;
 
     function processBrandsAsync(idx){
       if(idx>=brands.length){
@@ -1098,8 +957,7 @@ async function processFiles(){
         uz.style.minHeight='0';
         uz.style.marginBottom='0';
         document.getElementById('parse-status').innerHTML='';
-        var hasDSP=consolidated.some(function(r){return /dsp/i.test(String(r['Ad product']||''));})
-          ||(campExtra||[]).some(function(r){return /dsp/i.test(String(r['Ad product']||''));});
+        var hasDSP=consolidated.some(function(r){return /dsp/i.test(String(r['Ad product']||''));});
         var chips='<span class="parsed-chip">'+consolidated.length.toLocaleString()+' rows parsed</span>'+
           '<span class="parsed-chip">'+brands.length+' brands</span>'+
           '<span class="parsed-chip">Placements ✓</span>'+
@@ -1135,7 +993,12 @@ async function processFiles(){
 // ── Compute per-brand metrics ──
 function computeBrand(brand,brandCol){
   var campRows=CAMP_BY_BRAND[brand]||[];
-  var strRows=STR_BY_BRAND[brand]||[];
+  // Search-term rows for search ads only — DSP rows have no search term/match type
+  // and would otherwise be counted as keyword spend in the PAT vs. Keyword split
+  var strRows=(STR_BY_BRAND[brand]||[]).filter(function(r){
+    var ap=getCol(r,['ad product','ad type']);
+    return !(ap&&/dsp/i.test(String(r[ap]||'')));
+  });
 
   // ── Campaign report columns ──
   var c0=campRows[0]||{};
@@ -1169,14 +1032,6 @@ function computeBrand(brand,brandCol){
   }).filter(function(c){return c.sp>0;}).sort(function(a,b){return b.sp-a.sp;});
 
   // PPC aggregates
-  function campMetrics(rows){
-    return{
-      name:rows[0]?String(rows[0][cName]||''):'',
-      spend:rows.reduce(function(s,r){return s+num(r[cSpend]);},0),
-      sales:rows.reduce(function(s,r){return s+num(r[cSales]);},0),
-      purchases:rows.reduce(function(s,r){return s+num(r[cPurchases]);},0),
-    };
-  }
 
   var totalPPCSpend=ppcRows.reduce(function(s,r){return s+num(r[cSpend]);},0);
   var totalPPCSales=ppcRows.reduce(function(s,r){return s+num(r[cSales]);},0);
@@ -1204,6 +1059,11 @@ function computeBrand(brand,brandCol){
   var autoNBSpend=autoNBRows.reduce(function(s,r){return s+num(r[cSpend]);},0);
   var autoNBSales=autoNBRows.reduce(function(s,r){return s+num(r[cSales]);},0);
   var autoNBROAS=autoNBSpend>0?autoNBSales/autoNBSpend:0;
+  // Manual NB ROAS — manual campaigns intersected with NB campaigns
+  var manualNBRows=manualRows.filter(function(r){return nbCampNames.has(String(r[cName]||'').toLowerCase().trim());});
+  var manualNBSpend=manualNBRows.reduce(function(s,r){return s+num(r[cSpend]);},0);
+  var manualNBSales=manualNBRows.reduce(function(s,r){return s+num(r[cSales]);},0);
+  var manualNBROAS=manualNBSpend>0?manualNBSales/manualNBSpend:0;
 
   var avgNBROAS=nbSpend>0?nbSales/nbSpend:0;
 
@@ -1226,8 +1086,6 @@ function computeBrand(brand,brandCol){
   // Matched target column (new format) — contains the actual targeting value
   var sMatchedTarget=getCol(s0,['matched target','targeting','targeting expression']);
 
-  // NB campaign name set (from campaign report)
-  var nbCampNames=new Set(nbRows.map(function(r){return String(r[cName]||'').toLowerCase().trim();}));
 
   // Normalise the raw match type value from the column into our internal codes
   function normMatchType(rawMT, campName, termVal){
@@ -1269,8 +1127,10 @@ function computeBrand(brand,brandCol){
   });
 
   // PAT vs KW split (accurate from Targeting match type column)
-  var patSpend=strMapped.filter(function(r){return r.isPatRow;}).reduce(function(s,r){return s+r.sp;},0);
-  var kwSpend=strMapped.filter(function(r){return !r.isPatRow&&r.mt!=='AUTO';}).reduce(function(s,r){return s+r.sp;},0);
+  // Manual campaigns only — auto spend (incl. auto rows matched to ASIN search terms) is excluded from both sides
+  var manualStr=strMapped.filter(function(r){return r.mt!=='AUTO'&&!isAuto(r.campNameOrig);});
+  var patSpend=manualStr.filter(function(r){return r.isPatRow;}).reduce(function(s,r){return s+r.sp;},0);
+  var kwSpend=manualStr.filter(function(r){return !r.isPatRow;}).reduce(function(s,r){return s+r.sp;},0);
   var pkTotal=patSpend+kwSpend;
 
   // Match type split — accurate when Targeting match type column is present
@@ -1295,14 +1155,6 @@ function computeBrand(brand,brandCol){
   });
   var topTerms=Object.values(termMap).sort(function(a,b){return b.sp-a.sp;}).slice(0,3);
 
-  // Wasted spend (0 purchases, NB only, non-ASIN)
-  var wastedMap={};
-  strMapped.filter(function(r){return r.isNBCamp&&r.pu===0&&r.sp>0&&r.cl>0&&!isASIN(r.term)&&r.term;}).forEach(function(r){
-    var k=r.term.toLowerCase()+'||'+r.campName;
-    if(!wastedMap[k])wastedMap[k]={term:r.term,campaign:r.campName,sp:0,cl:0,mts:new Set()};
-    wastedMap[k].sp+=r.sp;wastedMap[k].cl+=r.cl;wastedMap[k].mts.add(r.mt||'AUTO');
-  });
-  var wastedTerms=Object.values(wastedMap).map(function(w){return{term:w.term,campaign:w.campaign,spend:w.sp,clicks:w.cl,matchTypes:[...w.mts]};}).sort(function(a,b){return b.spend-a.spend;}).slice(0,50);
 
   // Token analysis — broken down by match type (Auto / Phrase / Broad)
   // Uses the same engine as the standalone Negative Mining Tool
@@ -1503,18 +1355,16 @@ function computeBrand(brand,brandCol){
 
   var totalSpend=totalPPCSpend+dspSpend;
   var totalSales=totalPPCSales+dspSales;
-  var totalWasted=wastedTerms.reduce(function(s,r){return s+r.spend;},0);
 
   // ── Supplemental report data ──
   var placementTable=computePlacementTable(brand);
 
   return{
     totalPPCSpend,totalPPCSales,dspSpend,dspSales,dspPurch,dspROAS,dspCampaigns,dspNtbMode,totalSpend,totalSales,
-    bSpend,nbSpend,nbSales,autoSpend,manualSpend,avgNBROAS,autoNBROAS,autoNBSpend,
+    bSpend,nbSpend,nbSales,autoSpend,manualSpend,avgNBROAS,autoNBROAS,autoNBSpend,manualNBROAS,manualNBSpend,
     topNB,worstNB,
     patSpend,kwSpend,pkTotal,exactSpend,phraseSpend,broadSpend,manualOtherSpend,mtTotal,hasRealMT,
-    topTerms,wastedTerms,tokensByType,totalWasted,
-    wastedPct:totalPPCSpend>0?totalWasted/totalPPCSpend:0,
+    topTerms,tokensByType,
     campRows,strRows,
     placementTable,
     ccy:BRAND_CCY[brand]||'$',
@@ -1522,10 +1372,6 @@ function computeBrand(brand,brandCol){
 }
 
 // ── Supplemental compute functions ──
-
-
-
-
 
 
 function computePlacementTable(brand){
@@ -1676,7 +1522,16 @@ function downloadAllCallouts(){
   var el=document.getElementById('all-callouts-data');
   if(!el)return;
   var text=el.textContent;
-  var mn=new Date().toISOString().slice(0,7);
+  // Cover month = the month the callouts are for (most common selected callout month), not today's month
+  var mCount={};
+  Object.keys(BRAND_DATA).forEach(function(b){
+    var c=CALLOUT_STATE[b];
+    if(!c||!c.output||c.month<0)return;
+    var k=(c.year||new Date().getFullYear())+'-'+c.month;
+    mCount[k]=(mCount[k]||0)+1;
+  });
+  var topK=Object.keys(mCount).sort(function(a,b){return mCount[b]-mCount[a];})[0];
+  var mn=topK?MNS[+topK.split('-')[1]]+' '+topK.split('-')[0]:MNS[new Date().getMonth()]+' '+new Date().getFullYear();
 
   // Build a clean print-ready HTML document
   var brands=Object.keys(BRAND_DATA).sort();
@@ -1835,115 +1690,7 @@ function renderBrandContent(brand){
   if(sec==='callout')bindCallout(brand);
 }
 
-// ── Overview ──
-function renderOverview(brand,m){
-  var roas=m.totalPPCSpend>0?m.totalPPCSales/m.totalPPCSpend:0;
-  var tacos=m.totalPPCSales>0?m.totalPPCSpend/m.totalPPCSales:0;
-  var wc=m.wastedPct>0.25?'neg':m.wastedPct>0.15?'warn-c':'pos';
-  var pS=function(v,d){return d>0?fmtPct(v/d):'0.00%';};
-  // Top row: core performance
-  var row1='<div class="g4">'+
-    mc('Total PPC Spend',fmt$(m.totalPPCSpend),'TACoS: '+fmtPct(tacos))+
-    mc('PPC Sales',fmt$(m.totalPPCSales),'ROAS: '+fmtX(roas))+
-    mc('NB ROAS',fmtX(m.avgNBROAS),fmt$(m.nbSales)+' NB sales')+
-    mc('Wasted Spend','<span class="'+wc+'">'+fmt$(m.totalWasted)+'</span>','<span class="'+wc+'">'+fmtPct(m.wastedPct)+' of spend</span>')+
-  '</div>';
-  // Second row: B vs NB vs Auto — prominent spend cards
-  var row2='<div class="g3">'+
-    mc('Branded Spend',fmt$(m.bSpend),pS(m.bSpend,m.totalPPCSpend)+' of PPC')+
-    mc('Non-Branded Spend',fmt$(m.nbSpend),pS(m.nbSpend,m.totalPPCSpend)+' of PPC')+
-    mc('Auto Spend',fmt$(m.autoSpend),pS(m.autoSpend,m.totalPPCSpend)+' of PPC')+
-  '</div>';
-  // DSP if present
-  var dspRow=m.dspSpend>0?'<div class="g4" style="margin-bottom:18px">'+
-    mc('DSP Spend',fmt$(m.dspSpend),'')+
-    mc('DSP Sales',fmt$(m.dspSales),fmtX(m.dspROAS)+' ROAS')+
-    mc('DSP Purchases',m.dspPurch+' orders',m.dspPurch>0?fmt$(m.dspSpend/m.dspPurch)+' CPA':'')+
-    mc('DSP Campaigns',m.dspCampaigns.length+' active','')+
-  '</div>':'';
 
-  function spendGroup(title, items){
-    var groupTotal=items.reduce(function(s,r){return s+r.v;},0)||1;
-    return'<div style="margin-bottom:22px">'+
-      '<div style="font-family:var(--mono);font-size:9px;font-weight:500;color:var(--gray-dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--line-soft)">'+esc(title)+'</div>'+
-      items.map(function(item){
-        var pct=Math.min(item.v/groupTotal*100,100);
-        return'<div style="margin-bottom:10px">'+
-          '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">'+
-            '<span style="font-family:var(--sans);font-size:12px;color:var(--white)">'+esc(item.label)+'</span>'+
-            '<span style="font-family:var(--mono);font-size:11px;color:var(--white)">'+fmt$(item.v)+'&nbsp;&nbsp;<span style="color:var(--gray-dim);font-size:10px">'+pct.toFixed(1)+'%</span></span>'+
-          '</div>'+
-          '<div style="height:6px;background:var(--line);border-radius:3px">'+
-            '<div style="height:6px;width:'+pct.toFixed(1)+'%;background:'+item.color+';border-radius:3px;transition:width .3s"></div>'+
-          '</div>'+
-        '</div>';
-      }).join('')+
-    '</div>';
-  }
-
-  var breakdown='<div class="sec-head" style="margin-top:8px"><div><div class="results-title">Spend Breakdown</div><div class="results-sub">Each group compares against its own total</div></div></div>'+
-  '<div class="card">'+
-    spendGroup('Branded vs. Non-Branded',[
-      {label:'Branded',v:m.bSpend,color:'var(--green)'},
-      {label:'Non-Branded',v:m.nbSpend,color:'var(--white)'},
-    ])+
-    spendGroup('Auto vs. Manual',[
-      {label:'Auto',v:m.autoSpend,color:'var(--amber)'},
-      {label:'Manual',v:m.manualSpend,color:'var(--white)'},
-    ])+
-    spendGroup('Product Targeting vs. Keyword',[
-      {label:'PAT / CAT',v:m.patSpend,color:'var(--gray)'},
-      {label:'Keyword',v:m.kwSpend,color:'var(--white)'},
-    ])+
-    (m.hasRealMT&&m.mtTotal>0?
-      spendGroup('Match Type',[
-        {label:'Exact',v:m.exactSpend,color:'var(--white)'},
-        {label:'Phrase',v:m.phraseSpend,color:'var(--gray)'},
-        {label:'Broad',v:m.broadSpend,color:'var(--gray-dim)'},
-      ])
-    :'')+
-  '</div>';
-  return row1+row2+dspRow+breakdown;
-}
-
-function mc(lbl,val,sub){
-  return'<div class="card"><div class="mc-lbl">'+esc(lbl)+'</div><div class="mc-val">'+val+'</div>'+(sub?'<div class="mc-sub">'+sub+'</div>':'')+'</div>';
-}
-
-// ── Products ──
-
-
-// ── Placements ──
-
-// ── DSP ──
-
-
-// ── Targeting ──
-
-
-// ── Impression Share ──
-
-
-function spendBar(lbl,v,total,color){
-  return'<div style="margin-bottom:12px">'+
-    '<div style="display:flex;justify-content:space-between;margin-bottom:3px">'+
-    '<span style="font-family:var(--mono);font-size:10px;color:var(--gray-dim)">'+esc(lbl)+'</span>'+
-    '<span style="font-family:var(--mono);font-size:10px;color:var(--white)">'+fmt$(v)+' &nbsp;<span style="color:var(--gray-dim)">'+pct.toFixed(1)+'%</span></span>'+
-    '</div>'+
-    '<div class="score-bar"><div class="score-fill" style="width:'+pct.toFixed(1)+'%;background:'+color+'"></div></div>'+
-  '</div>';
-}
-function campTable(camps,isTop){
-  return'<table class="tbl"><thead><tr><th>Campaign</th><th class="num">ROAS</th><th class="num">Spend</th></tr></thead><tbody>'+
-    camps.map(function(c){
-      var roasCls=c.roas>=3?'pos':c.roas>=1?'neu':'neg';
-      return'<tr><td style="font-family:var(--mono);font-size:10px;max-width:380px">'+esc(c.name)+'</td>'+
-        '<td class="num '+roasCls+'">'+fmtX(c.roas)+'</td>'+
-        '<td class="num">'+fmt$(c.spend)+'</td></tr>';
-    }).join('')+'</tbody></table>';
-}
-
-// ── Wasted Spend ──
 // ── Token Analysis ──
 var TOKEN_ACTIVE_SECTION={};
 var TOKEN_ACTIVE_VIEW={};
@@ -2471,37 +2218,8 @@ function dzSm(dzId,fileKey,lbl,brand){
   '</div>';
 }
 
-function handleSPSTRUpload(e, brand){
-  var file=e.target.files[0];if(!file)return;
-  var dzId='spstr-dz-'+CSS.escape(brand);
-  var hintId='spstr-hint-'+CSS.escape(brand);
-  parseCSVorXLSX(file).then(function(rows){
-    var tgMap={};
-    rows.forEach(function(r){
-      var camp=String(r['Campaign Name']||r['Campaign name']||'').trim().toLowerCase();
-      var term=String(r['Customer Search Term']||r['Search Term']||r['Search term']||'').trim().toLowerCase();
-      var tg=String(r['Targeting']||'').trim().toLowerCase();
-      var key=camp+'||'+term;
-      if(tg&&!tgMap[key])tgMap[key]=tg;
-    });
-    SP_STR_BY_BRAND[brand]=tgMap;
-    BRAND_DATA[brand]=computeBrand(brand,'Advertiser account name');
-    if(ACTIVE_BRAND===brand)renderBrandContent(brand);
-    var dz=document.getElementById(dzId);if(dz)dz.classList.add('ok');
-    var hint=document.getElementById(hintId);if(hint)hint.textContent=file.name;
-  }).catch(function(err){console.warn('SP STR parse error',err);});
-}
 
 // Enrich auto rows with targeting sub-type from per-brand SP STR
-function enrichAutoSubType(autoRows, brand){
-  var tgMap=SP_STR_BY_BRAND[brand];
-  if(!tgMap)return autoRows;
-  return autoRows.map(function(r){
-    var key=r.campName+'||'+r.term.toLowerCase();
-    var tg=tgMap[key]||r.tg||'';
-    return Object.assign({},r,{tg:tg});
-  });
-}
 
 function handleSQPLocal(e,fileKey,dzId,brand){
   var file=e.target.files[0];if(!file)return;
@@ -2529,7 +2247,12 @@ function bindCallout(brand){
   root.querySelectorAll('[data-cf]').forEach(function(el){
     el.addEventListener('change',function(){
       var key=el.dataset.cf;
-      if(key==='month')cs.month=parseInt(el.value);
+      if(key==='month'){
+        cs.month=parseInt(el.value);
+        // Callouts are for the current or a past month — a month later than today means last year (e.g. December picked in January)
+        var now=new Date();
+        if(cs.month>=0)cs.year=cs.month>now.getMonth()?now.getFullYear()-1:now.getFullYear();
+      }
       else cs[key]=el.value;
     });
     el.addEventListener('input',function(){
@@ -2682,7 +2405,7 @@ async function generateCallout(brand){
   }
   out+='* Auto vs. Manual Campaign\n';
   out+='      Auto:          '+P(m.autoSpend,totalPPCSpend)+(m.autoNBSpend>0?' (NB ROAS: '+m.autoNBROAS.toFixed(2)+'x)':'')+'\n';
-  out+='      Manual:        '+P(m.manualSpend,totalPPCSpend)+(m.avgNBROAS>0?' (NB ROAS: '+m.avgNBROAS.toFixed(2)+'x)':'')+'\n';
+  out+='      Manual:        '+P(m.manualSpend,totalPPCSpend)+(m.manualNBSpend>0?' (NB ROAS: '+m.manualNBROAS.toFixed(2)+'x)':'')+'\n';
   if(dspVal>0){
     var totalAll=totalPPCSpend+dspVal;
     out+='* DSP vs. PPC\n';
@@ -2781,26 +2504,7 @@ function copyCallout(brand){
 }
 
 // ── Utilities ──
-function filterTbl(tblId,q,col){
-  var tbl=document.getElementById(tblId);if(!tbl)return;
-  var lq=q.toLowerCase();
-  tbl.querySelectorAll('tbody tr').forEach(function(row){
-    var cell=row.cells[col];
-    row.style.display=(!lq||(cell&&cell.textContent.toLowerCase().includes(lq)))?'':'none';
-  });
-}
 
-function exportWasted(brand){
-  var m=BRAND_DATA[brand];
-  var rows=[['Search Term','Match Types','Spend','Clicks']];
-  m.wastedTerms.forEach(function(r){rows.push([r.term,r.matchTypes.join('|'),r.spend.toFixed(2),r.clicks]);});
-  dlCSV(rows,brand+'_wasted_spend.csv');
-}
-
-function dlCSV(rows,fn){
-  var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
-  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=fn;a.click();
-}
 
 function showErr(msg){
   document.getElementById('parse-status').innerHTML='<span style="font-family:var(--mono);font-size:11px;color:var(--red)">'+esc(msg)+'</span>';
@@ -2809,7 +2513,7 @@ function showErr(msg){
 function resetApp(){
   FILES={str:null,camp:null,placement:null};
   PARSED={str:null,camp:null,placement:null};
-  STR_BY_BRAND={};CAMP_BY_BRAND={};SP_STR_BY_BRAND={};PLACEMENT_BY_BRAND={};
+  STR_BY_BRAND={};CAMP_BY_BRAND={};PLACEMENT_BY_BRAND={};
   BRAND_DATA={};ACTIVE_BRAND=null;ACTIVE_SEC={};CALLOUT_STATE={};
   BRAND_CCY={};CCY='$';
   CHECKIN_MODE=false;
