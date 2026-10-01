@@ -402,15 +402,14 @@ body{font-family:var(--sans);background:var(--black);color:var(--white);min-heig
       </div>
     </div>
     <label style="display:flex;align-items:center;gap:8px;justify-content:center;margin-top:14px;cursor:pointer;user-select:none">
-      <input type="checkbox" id="split-country-toggle" checked onchange="SPLIT_COUNTRIES=this.checked" style="accent-color:var(--green);cursor:pointer;width:14px;height:14px">
-      <span style="font-family:var(--mono);font-size:11px;color:var(--gray-dim)">Split multi-country accounts by marketplace (US/CA/UK/AU…) &middot; uncheck to keep each account combined into one</span>
+      <input type="checkbox" id="split-country-toggle" autocomplete="off" onchange="SPLIT_COUNTRIES=this.checked" style="accent-color:var(--green);cursor:pointer;width:14px;height:14px">
+      <span style="font-family:var(--mono);font-size:11px;color:var(--gray-dim)">Split multi-country accounts by marketplace (US/CA/UK/AU…) &middot; off by default — check to split each account by country</span>
     </label>
     <div style="display:flex;align-items:center;gap:10px;margin-top:14px;justify-content:center">
       <button class="btn-primary" onclick="processFiles()" id="parse-btn" disabled style="padding:10px 28px;font-size:13px">Analyze All Brands</button>
       <div id="parse-status"></div>
     </div>
     <div id="parsed-status" style="margin-top:12px"></div>
-    <div style="font-family:var(--mono);font-size:10px;color:var(--gray-dim);margin-top:8px">Changed the toggle after analyzing? Click Analyze All Brands again to re-run with the new setting.</div>
   </div>
 </div>
 
@@ -673,7 +672,7 @@ var ACTIVE_SEC={};
 var CALLOUT_STATE={};
 var BRAND_CCY={};  // brand label -> currency symbol, e.g. 'BlackMask Products (CA)' -> 'CA$'
 var CCY='$';        // currency symbol in effect for whatever is currently being rendered
-var SPLIT_COUNTRIES=true;  // false = keep multi-marketplace accounts combined into one
+var SPLIT_COUNTRIES=false;  // off by default; true = split multi-marketplace accounts by country
 
 // ── Helpers ──
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -995,6 +994,8 @@ async function processFiles(){
     // split it out so each country is treated as its own account from here on —
     // unless the "Split multi-country accounts" toggle is off, in which case each
     // account stays combined exactly like before this feature existed
+    var splitEl=document.getElementById('split-country-toggle');
+    SPLIT_COUNTRIES=!!(splitEl&&splitEl.checked);
     var countrySplit=splitConsolidatedByCountry(consolidated,SPLIT_COUNTRIES);
     consolidated=countrySplit.rows;
     BRAND_CCY=countrySplit.brandCcy||{};
