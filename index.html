@@ -1238,6 +1238,7 @@ function computeBrand(brand,brandCol){
     if(v==='BROAD')return'BROAD';
     if(v==='TARGETING_EXPRESSION_PREDEFINED')return'AUTO';   // auto campaign sub-types
     if(v==='TARGETING_EXPRESSION')return'PAT';               // manual ASIN/category PAT
+    if(v==='THEME')return'MANUAL_OTHER';                    // SB keyword themes — not a match type
     // Old format / no column — fall back to campaign name inference
     var cn=campName.toLowerCase();
     if(/\bauto\b/.test(cn))return'AUTO';
@@ -1278,7 +1279,8 @@ function computeBrand(brand,brandCol){
   var phraseSpend=strMapped.filter(function(r){return r.mt==='PHRASE';}).reduce(function(s,r){return s+r.sp;},0);
   var broadSpend=strMapped.filter(function(r){return r.mt==='BROAD';}).reduce(function(s,r){return s+r.sp;},0);
   var manualOtherSpend=strMapped.filter(function(r){return r.mt==='MANUAL_OTHER';}).reduce(function(s,r){return s+r.sp;},0);
-  var mtTotal=exactSpend+phraseSpend+broadSpend+manualOtherSpend;
+  // Match type % is Exact/Phrase/Broad share of each other, so the three always sum to 100%
+  var mtTotal=exactSpend+phraseSpend+broadSpend;
 
   // Top NB search terms (from STR, NB campaigns only, no brand name, no ASIN)
   var brandSlug=brand.toLowerCase().replace(/[-\s,.]/g,'').slice(0,6);
@@ -1688,14 +1690,47 @@ function downloadAllCallouts(){
     var lines=cs.output.split('\n');
     var html='';
     var inBlock=false;
+    // Sections whose indented lines are fixed-width tables (rendered as real <table>s in the PDF)
+    var TABLE_SECTIONS=/^(PLACEMENT BREAKDOWN|DSP PACKAGE REVIEW)/;
+    var inTableSec=false;
+    var tRows=[];   // {cells:[...], total:bool}
+    var tSepSeen=0;
+    function splitCols(line){return line.trim().split(/\s{2,}/).filter(Boolean);}
+    function flushTable(){
+      if(!tRows.length){tSepSeen=0;return;}
+      var hdr=tRows[0].cells,body=tRows.slice(1);
+      var thBase='padding:6px 10px;font-size:9pt;font-weight:600;color:#888;font-family:\'DM Mono\',monospace;letter-spacing:.06em;text-transform:uppercase;border-bottom:2px solid #111;';
+      var t='<table style="width:100%;border-collapse:collapse;margin:8px 0 16px"><thead><tr>'+
+        hdr.map(function(h,i){return'<th style="'+thBase+'text-align:'+(i===0?'left':'right')+'">'+esc(h)+'</th>';}).join('')+
+        '</tr></thead><tbody>';
+      body.forEach(function(r){
+        var bold=r.total;
+        t+='<tr style="'+(bold?'border-top:2px solid #111':'border-bottom:1px solid #e5e5e5')+'">'+
+          r.cells.map(function(v,i){return'<td style="padding:6px 10px;font-size:10.5pt;text-align:'+(i===0?'left':'right')+';'+(bold?'font-weight:600;':'')+'">'+esc(v)+'</td>';}).join('')+
+          '</tr>';
+      });
+      t+='</tbody></table>';
+      html+=t;tRows=[];tSepSeen=0;
+    }
     lines.forEach(function(line){
       var trimmed=line.trim();
       if(trimmed.startsWith('====')&&trimmed.endsWith('====')){
+        flushTable();
         if(inBlock)html+='</div>';
         var heading=trimmed.replace(/^=+\s*/,'').replace(/\s*=+$/,'');
+        inTableSec=TABLE_SECTIONS.test(heading);
         html+='<div class="section-block"><h3>'+esc(heading)+'</h3>';
         inBlock=true;
-      } else if(line.match(/^      /)&&!trimmed.startsWith('*')){
+        return;
+      }
+      if(inTableSec&&line.match(/^      /)&&!trimmed.startsWith('*')){
+        if(/^-{5,}$/.test(trimmed)){if(tRows.length>1)tSepSeen++;return;}
+        if(!trimmed)return;
+        tRows.push({cells:splitCols(line),total:tSepSeen>0});
+        return;
+      }
+      if(inTableSec&&tRows.length)flushTable();
+      if(line.match(/^      /)&&!trimmed.startsWith('*')){
         html+='<div class="sub-line">'+esc(trimmed)+'</div>';
       } else if(trimmed.startsWith('   * ')){
         html+='<div class="sub-line">'+esc(trimmed.slice(5))+'</div>';
@@ -1707,6 +1742,7 @@ function downloadAllCallouts(){
         html+='<p>'+esc(trimmed)+'</p>';
       }
     });
+    flushTable();
     if(inBlock)html+='</div>';
     sections+='<div class="brand-section">'+
       '<div class="brand-header">'+
@@ -2636,9 +2672,13 @@ async function generateCallout(brand){
   out+='      Keyword:       '+P(m.kwSpend,pkTotal)+'\n';
   if(m.hasRealMT&&m.mtTotal>0){
     out+='* Match Type\n';
-    out+='      Exact:         '+P(m.exactSpend,m.mtTotal)+'\n';
-    out+='      Phrase:        '+P(m.phraseSpend,m.mtTotal)+'\n';
-    out+='      Broad:         '+P(m.broadSpend,m.mtTotal)+'\n';
+    // Round Exact/Phrase, then give Broad the remainder so the three print to exactly 100.00%
+    var exP=Math.round(m.exactSpend/m.mtTotal*10000)/100;
+    var phP=Math.round(m.phraseSpend/m.mtTotal*10000)/100;
+    var brP=Math.max(0,Math.round((100-exP-phP)*100)/100);
+    out+='      Exact:         '+exP.toFixed(2)+'%\n';
+    out+='      Phrase:        '+phP.toFixed(2)+'%\n';
+    out+='      Broad:         '+brP.toFixed(2)+'%\n';
   }
   out+='* Auto vs. Manual Campaign\n';
   out+='      Auto:          '+P(m.autoSpend,totalPPCSpend)+(m.autoNBSpend>0?' (NB ROAS: '+m.autoNBROAS.toFixed(2)+'x)':'')+'\n';
@@ -2668,14 +2708,15 @@ async function generateCallout(brand){
   if(m.placementTable){
     var pt=m.placementTable;
     out+='==== PLACEMENT BREAKDOWN (NON-BRANDED) ====\n';
-    out+='      '+padR('Placement',24)+padL('Spend',10)+padL('% Spend',9)+padL('CPC',8)+padL('CVR',8)+padL('ROAS',7)+'\n';
-    out+='      '+'-'.repeat(66)+'\n';
+    function plRow(a,b,c,d,e,f){return'      '+padR(a,24)+padL(b,12)+padL(c,10)+padL(d,10)+padL(e,9)+padL(f,9)+'\n';}
+    out+=plRow('Placement','Spend','% Spend','CPC','CVR','ROAS');
+    out+='      '+'-'.repeat(74)+'\n';
     pt.placements.forEach(function(p){
-      out+='      '+padR(p.label,24)+padL(fmt$(p.sp),10)+padL(p.pct.toFixed(1)+'%',9)+padL(CCY+p.cpc.toFixed(2),8)+padL(p.cvr.toFixed(1)+'%',8)+padL(p.roas.toFixed(2)+'x',7)+'\n';
+      out+=plRow(p.label,fmt$(p.sp),p.pct.toFixed(1)+'%',CCY+p.cpc.toFixed(2),p.cvr.toFixed(1)+'%',p.roas.toFixed(2)+'x');
     });
-    out+='      '+'-'.repeat(66)+'\n';
+    out+='      '+'-'.repeat(74)+'\n';
     var t=pt.total;
-    out+='      '+padR('NB Total',24)+padL(fmt$(t.sp),10)+padL('100%',9)+padL(CCY+t.cpc.toFixed(2),8)+padL(t.cvr.toFixed(1)+'%',8)+padL(t.roas.toFixed(2)+'x',7)+'\n';
+    out+=plRow('NB Total',fmt$(t.sp),'100%',CCY+t.cpc.toFixed(2),t.cvr.toFixed(1)+'%',t.roas.toFixed(2)+'x');
   }
 
   out+='==== TOP NON-BRANDED CAMPAIGNS ====\n';
