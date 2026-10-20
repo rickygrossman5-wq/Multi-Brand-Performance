@@ -338,6 +338,44 @@ function ciCard(label,val,color){
   '</div>';
 }
 
+// Search ads campaigns whose start date falls in the given month (DSP excluded), in report order
+function findNewCampaigns(brand,month,year){
+  var campRows=CAMP_BY_BRAND[brand]||[];
+  var r0=campRows[0]||{};
+  var startCol=getCol(r0,['campaign start date']);
+  var nameCol=getCol(r0,['campaign name']);
+  if(!startCol||!nameCol||month<0)return[];
+  var mStart=new Date(year,month,1),mEnd=new Date(year,month+1,0,23,59,59);
+  var seen=new Set(),out=[];
+  campRows.forEach(function(r){
+    var name=String(r[nameCol]||'').trim();
+    if(!name||seen.has(name))return;
+    seen.add(name);
+    if(String(r['Ad product']||r['Ad Product']||'').toLowerCase().includes('dsp'))return;
+    var st=new Date(String(r[startCol]||'').trim());
+    if(isNaN(st)||st<mStart||st>mEnd)return;
+    var sp=num(r['Total cost']),sa=num(r['Sales']);
+    out.push({name:name,start:st,spend:sp,sales:sa,roas:sp>0?sa/sp:0});
+  });
+  return out;
+}
+
+// Report month = the month most rows' "Date range" starts in (falls back to last month)
+var REPORT_PERIOD=null;
+function detectReportPeriod(rows){
+  var col=getCol(rows[0]||{},['date range']);
+  var cnt={};
+  if(col)rows.forEach(function(r){
+    var d=new Date(String(r[col]||'').split(' - ')[0].trim());
+    if(isNaN(d))return;
+    var k=d.getFullYear()+'-'+d.getMonth();cnt[k]=(cnt[k]||0)+1;
+  });
+  var k=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a];})[0];
+  if(k)return{year:+k.split('-')[0],month:+k.split('-')[1]};
+  var n=new Date();n.setDate(1);n.setMonth(n.getMonth()-1);
+  return{year:n.getFullYear(),month:n.getMonth()};
+}
+
 function campMiniTable(camps){
   if(!camps||!camps.length)return'<div style="font-size:11px;color:var(--gray-dim)">—</div>';
   return'<table class="tbl"><thead><tr><th>Campaign</th><th class="num">ROAS</th><th class="num">Spend</th></tr></thead><tbody>'+
@@ -400,6 +438,41 @@ function renderCheckinMode(){
         '</tbody></table></div>';
     }
 
+    // DSP packages (spend, ROAS, NTB ROAS)
+    var dspPkgHTML='';
+    if(m.dspCampaigns&&m.dspCampaigns.length){
+      var ntbLbl=m.dspNtbMode==='est'?'NTB ROAS (est.)':'NTB ROAS';
+      dspPkgHTML='<div style="margin-top:18px">'+
+        '<div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-dim);margin-bottom:8px">DSP Packages</div>'+
+        '<table class="tbl"><thead><tr><th>Package</th><th class="num">Spend</th><th class="num">ROAS</th><th class="num">'+ntbLbl+'</th></tr></thead><tbody>'+
+        m.dspCampaigns.map(function(c){
+          var rc=c.roas>=2?'var(--green)':c.roas>=1?'var(--white)':'var(--red)';
+          var nc=c.ntbRoas===null?'var(--gray-dim)':c.ntbRoas>=1?'var(--green)':c.ntbRoas>=0.5?'var(--white)':'var(--red)';
+          return'<tr><td style="font-size:11px">'+esc(c.pkg)+'</td>'+
+            '<td class="num">'+fmt$(c.sp)+'</td>'+
+            '<td class="num" style="color:'+rc+';font-weight:500">'+fmtX(c.roas)+'</td>'+
+            '<td class="num" style="color:'+nc+';font-weight:500">'+(c.ntbRoas===null?'—':fmtX(c.ntbRoas))+'</td></tr>';
+        }).join('')+
+        '</tbody></table></div>';
+    }
+
+    // New campaigns launched in the report month
+    var rp=REPORT_PERIOD||detectReportPeriod([]);
+    var newC=findNewCampaigns(brand,rp.month,rp.year).sort(function(a,b){return b.spend-a.spend;});
+    var newCampHTML='<div style="margin-top:18px">'+
+      '<div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-dim);margin-bottom:8px">New Campaigns — '+MNS[rp.month]+' '+rp.year+'</div>'+
+      (newC.length?
+        '<table class="tbl"><thead><tr><th>Campaign</th><th class="num">Launched</th><th class="num">Spend</th><th class="num">ROAS</th></tr></thead><tbody>'+
+        newC.map(function(c){
+          var rc=c.roas>=3?'var(--green)':c.roas>=1?'var(--white)':c.roas>0?'var(--amber)':'var(--red)';
+          return'<tr><td style="font-size:10px;color:var(--gray)">'+esc(c.name)+'</td>'+
+            '<td class="num" style="color:var(--gray-dim)">'+MNS[c.start.getMonth()].slice(0,3)+' '+c.start.getDate()+'</td>'+
+            '<td class="num">'+fmt$(c.spend)+'</td>'+
+            '<td class="num" style="color:'+rc+';font-weight:500">'+(c.spend>0?fmtX(c.roas):'—')+'</td></tr>';
+        }).join('')+'</tbody></table>'
+      :'<div style="font-size:11px;color:var(--gray-dim)">No new campaigns launched this month</div>')+
+    '</div>';
+
     // Spend breakdown
     var totalSp=m.totalPPCSpend||1;
     var breakdownHTML='<div style="margin-top:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px">'+
@@ -432,14 +505,16 @@ function renderCheckinMode(){
         ciCard('Auto NB ROAS',m.autoNBSpend>0?fmtX(m.autoNBROAS):'—',autoC)+
       '</div>'+
       // DSP
-      (m.dspSpend>0?'<div class="g4" style="margin-top:12px">'+
+      (m.dspSpend>0?'<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:12px">'+
         ciCard('DSP Spend',fmt$(m.dspSpend),'var(--white)')+
         ciCard('DSP Sales',fmt$(m.dspSales),'var(--white)')+
         ciCard('DSP ROAS',fmtX(m.dspROAS),m.dspROAS>=2?'var(--green)':m.dspROAS>=1?'var(--amber)':'var(--red)')+
+        ciCard(m.dspNtbMode==='est'?'NTB ROAS (est.)':'NTB ROAS',m.dspNtbROAS===null?'—':fmtX(m.dspNtbROAS),m.dspNtbROAS===null?'var(--gray-dim)':m.dspNtbROAS>=1?'var(--green)':m.dspNtbROAS>=0.5?'var(--amber)':'var(--red)')+
         ciCard('DSP Purchases',m.dspPurch+' orders','var(--white)')+
-      '</div>':'')+
+      '</div>'+dspPkgHTML:'')+
       breakdownHTML+
       plcHTML+
+      newCampHTML+
       // Top/worst campaigns
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px">'+
         '<div><div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-dim);margin-bottom:8px">Top NB Campaigns</div>'+campMiniTable(m.topNB)+'</div>'+
@@ -870,6 +945,7 @@ async function processFiles(){
     // Split consolidated report into STR rows (have search term) and use all rows for placement
     // The consolidated report IS the STR — all rows have search term + placement on same row
     PARSED.str=consolidated;
+    REPORT_PERIOD=detectReportPeriod(consolidated);
     // Build a synthetic campaign report from consolidated + any extra campaign report (for DSP)
     // Aggregate consolidated to campaign level for campaign metrics
     // Aggregate consolidated to campaign level (includes DSP if present)
@@ -1030,6 +1106,7 @@ function computeBrand(brand,brandCol){
     return{name:name,pkg:dspPackageLabel(name,brand),sp,sa,pu,roas:sp>0?sa/sp:0,
       ntbPu:ntbPu,ntbSa:ntbSa,ntbRoas:(sp>0&&dspNtbMode!=='none')?ntbSa/sp:null};
   }).filter(function(c){return c.sp>0;}).sort(function(a,b){return b.sp-a.sp;});
+  var dspNtbROAS=(dspSpend>0&&dspNtbMode!=='none')?dspCampaigns.reduce(function(s,c){return s+c.ntbSa;},0)/dspSpend:null;
 
   // PPC aggregates
 
@@ -1360,7 +1437,7 @@ function computeBrand(brand,brandCol){
   var placementTable=computePlacementTable(brand);
 
   return{
-    totalPPCSpend,totalPPCSales,dspSpend,dspSales,dspPurch,dspROAS,dspCampaigns,dspNtbMode,totalSpend,totalSales,
+    totalPPCSpend,totalPPCSales,dspSpend,dspSales,dspPurch,dspROAS,dspCampaigns,dspNtbMode,dspNtbROAS,totalSpend,totalSales,
     bSpend,nbSpend,nbSales,autoSpend,manualSpend,avgNBROAS,autoNBROAS,autoNBSpend,manualNBROAS,manualNBSpend,
     topNB,worstNB,
     patSpend,kwSpend,pkTotal,exactSpend,phraseSpend,broadSpend,manualOtherSpend,mtTotal,hasRealMT,
@@ -2449,32 +2526,13 @@ async function generateCallout(brand){
   m.worstNB.forEach(function(c){out+='* '+c.name+': ROAS '+c.roas.toFixed(2)+' | Spend: '+fmt$(c.spend)+'\n';});
 
   if(cs.month>=0){
-    var campRows=CAMP_BY_BRAND[brand]||[];
-    var r0camp=campRows[0]||{};
-    var startDateCol=getCol(r0camp,['campaign start date']);
-    var campNameCol=getCol(r0camp,['campaign name']);
-    if(startDateCol&&campNameCol){
-      var targetYear=cs.year||new Date().getFullYear();
-      var monthStart=new Date(targetYear,cs.month,1);
-      var monthEnd=new Date(targetYear,cs.month+1,0,23,59,59);
-      var seen=new Set();var newCamps=[];
-      campRows.forEach(function(r){
-        var name=String(r[campNameCol]||'').trim();
-        if(!name||seen.has(name))return;
-        seen.add(name);
-        var adProd=String(r['Ad product']||r['Ad Product']||'').toLowerCase();
-        if(adProd.includes('dsp'))return;
-        var startDt=new Date(String(r[startDateCol]||'').trim());
-        if(isNaN(startDt)||startDt<monthStart||startDt>monthEnd)return;
-        newCamps.push({name,spend:num(r['Total cost']),sales:num(r['Sales']),roas:num(r['Total cost'])>0?num(r['Sales'])/num(r['Total cost']):0});
+    var newCamps=findNewCampaigns(brand,cs.month,cs.year||new Date().getFullYear());
+    if(newCamps.length>0){
+      out+='==== NEW CAMPAIGNS LAUNCHED THIS MONTH ====\n';
+      newCamps.forEach(function(c){
+        out+='* '+c.name+'\n';
+        out+='      Spend: '+fmt$(c.spend)+' | ROAS: '+(c.roas>0?c.roas.toFixed(2)+'x':'—')+'\n';
       });
-      if(newCamps.length>0){
-        out+='==== NEW CAMPAIGNS LAUNCHED THIS MONTH ====\n';
-        newCamps.forEach(function(c){
-          out+='* '+c.name+'\n';
-          out+='      Spend: '+fmt$(c.spend)+' | ROAS: '+(c.roas>0?c.roas.toFixed(2)+'x':'—')+'\n';
-        });
-      }
     }
   }
 
