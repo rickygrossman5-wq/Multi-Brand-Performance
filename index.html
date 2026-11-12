@@ -852,6 +852,30 @@ function splitConsolidatedByCountry(rows,doSplit){
   return out;
 }
 
+// ── Shared-account brand splits ──
+// The Reel advertiser account also runs HoldOn. Rows are assigned by the report's
+// "Advertised product brand" when it's present; otherwise by product line in the
+// campaign name (same rule as the weekly Reel/HoldOn callouts).
+// The separate "HoldOn Bags" account is folded into HoldOn so the brand shows once.
+var ACCOUNT_SPLITS=[
+  {account:'Reel Products, Inc.',brand:'HoldOn',productBrand:/^\s*hold\s*on\s*$/i,match:/Trash|HoldOn|Food Storage|Food Bags|Pet/}
+];
+var ACCOUNT_MERGES={'HoldOn Bags':'HoldOn'};
+function splitSharedAccounts(rows){
+  if(!rows||!rows.length)return;
+  var pbCol=getCol(rows[0],['advertised product brand']);
+  rows.forEach(function(r){
+    var acct=String(r['Advertiser account name']||'').trim();
+    if(ACCOUNT_MERGES[acct]){r['Advertiser account name']=ACCOUNT_MERGES[acct];return;}
+    ACCOUNT_SPLITS.forEach(function(sp){
+      if(acct!==sp.account)return;
+      var pb=pbCol?String(r[pbCol]||'').trim():'';
+      var isSplit=pb?sp.productBrand.test(pb):sp.match.test(String(r['Campaign name']||''));
+      if(isSplit)r['Advertiser account name']=sp.brand;
+    });
+  });
+}
+
 // ── DSP account linking ──
 // Normalize an account name for matching: drop a trailing "(US)"-style market
 // suffix, filler words (the/inc/llc/company/co/corp/ltd), and punctuation/spaces.
@@ -952,6 +976,7 @@ async function processFiles(){
     // DSP sometimes runs under a differently named advertiser account than the
     // search ads (e.g. DSP "Humane" vs. SP/SB "The Humane Company"). Fold any
     // DSP-only account into the single search-ads brand whose normalized name matches.
+    splitSharedAccounts(consolidated);
     linkDSPAccounts(consolidated);
 
     var c0row=consolidated[0]||{};
@@ -1544,7 +1569,8 @@ function renderBrandNav(brands){
 
 var BRAND_SHORT={'Achim Imports':'Achim','Black Wolf Nation':'Black Wolf','Feel Goods Co':'Feel Goods',
   'HoldOn Bags':'HoldOn','Immuno 150 Health':'Immuno 150','Pro Supps':'Pro Supps',
-  'Puori Inc':'Puori','Reel Products, Inc.':'Reel','Sand Cloud':'Sand Cloud','The Humane Company':'Humane'};
+  'Puori Inc':'Puori','Reel Products, Inc.':'Reel','Sand Cloud':'Sand Cloud','The Humane Company':'Humane',
+  'Bravo Sierra_USA':'Bravo Sierra','HoldOn':'HoldOn'};
 
 function selectAllCallouts(){
   ACTIVE_BRAND='__all__';
